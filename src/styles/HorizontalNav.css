@@ -1,0 +1,20 @@
+/* horizontalNav.css */
+.nav-scroll {
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-link {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+}
+
+.nav-link.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
