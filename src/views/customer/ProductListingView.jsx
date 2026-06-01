@@ -8,7 +8,9 @@ import ProductCard from '../../components/customer/ProductCard';
 import FilterSidebar from '../../components/customer/FilterSidebar';
 import SortDropdown from '../../components/customer/SortDropdown';
 import Pagination from '../../components/customer/Pagination';
-import back from '../../assets/back.png';
+import back from '../../assets/breadboard.jpg';
+import Hero from '../../components/customer/Hero';
+import HorizontalNav from '../../components/HorizontalNav';
 
 const ProductListingView = () => {
   const productStore = useProductStore();
@@ -128,7 +130,7 @@ const ProductListingView = () => {
     <div className="products-page" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
       {/* Header with Glass Morphism - Matching Blog Design */}
       <header 
-        className="position-relative overflow-hidden py-5 mb-5"
+        className="position-relative overflow-hidden py-5 mb-"
         style={{
           backgroundImage: `url(${back})`,
           backgroundSize: 'cover',
@@ -139,7 +141,7 @@ const ProductListingView = () => {
         <div 
           className="position-absolute top-0 start-0 w-100 h-100"
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
             zIndex: 1
           }}
         />
@@ -195,6 +197,9 @@ const ProductListingView = () => {
           </div>
         </div>
       </header>
+
+      <Hero />
+      <HorizontalNav />
 
       <div className="container pb-5">
         {/* Mobile Filter Button */}

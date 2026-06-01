@@ -3,7 +3,7 @@ import React from 'react';
 import ContactForm from '../../components/customer/ContactForm';
 import ContactInfo from '../../components/customer/ContactInfo';
 import MapComponent from '../../components/customer/MapComponent';
-import back from '../../assets/back.png';
+import back from '../../assets/breadboard.jpg';
 
 const ContactPage = () => {
   const features = [
@@ -29,7 +29,7 @@ const ContactPage = () => {
         <div 
           className="position-absolute top-0 start-0 w-100 h-100"
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
             zIndex: 1
           }}
         />

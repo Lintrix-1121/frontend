@@ -5,8 +5,8 @@ import ProductListingView from "./ProductListingView"
 export default function Shop() {
   return (
     <>
-      <HorizontalNav />
-      <Hero />
+      {/* <HorizontalNav /> */}
+      {/* <Hero /> */}
       <ProductListingView />
      
     </>

@@ -4,7 +4,7 @@ import React from 'react';
 import Footer from '../../components/shared/Footer';
 import CompanyStory from '../../components/customer/CompanyStory';
 import PartnersSection from '../../components/customer/PartnersSection';
-import back from '../../assets/back.png'
+import back from '../../assets/breadboard.jpg'
 
 const AboutPage = () => {
   return (
@@ -24,7 +24,7 @@ const AboutPage = () => {
         <div 
           className="position-absolute top-0 start-0 w-100 h-100"
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
             zIndex: 1
           }}
         />
@@ -44,35 +44,15 @@ const AboutPage = () => {
         <div className="container position-relative py-5" style={{ zIndex: 3 }}>
           <div className="row align-items-center">
             <div className="col-lg-8">
-              <h1 className="display-4 fw-bold text-success mb-4">
-                About <span className="text-warning">SynerPhix</span>
-              </h1>
+              <h2 className="display-4 fw-bold text-success mb-4">
+                Empowering Innovation <span className="text-warning">Through Technology.</span>
+              </h2>
               <p className="lead text-white mb-0 opacity-75">
-                Pioneering LPG systems solutions and gas distribution since 2020
+                 Delivering intelligent solutions in ICT Infrastructure, Software Development, Electronics 
+                 Engineering and IoT Systems.
               </p>
             </div>
-            <div className="col-lg-4 text-lg-end">
-              {/* Stats Card */}
-              <div 
-                className="p-4"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}
-              >
-                <div className="row g-4 text-center">
-                  <div className="col-6">
-                    <div className="text-white fs-4 fw-bold">2020</div>
-                    <div className="text-white-50 small">Founded</div>
-                  </div>
-                  <div className="col-6">
-                    <div className="text-white fs-4 fw-bold">5+</div>
-                    <div className="text-white-50 small">Countries</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </section>
@@ -115,7 +95,8 @@ const AboutPage = () => {
                 </div>
                 <h3 className="fw-bold mb-3">Our Vision</h3>
                 <p className="text-muted">
-                  To be the leading indigenous service company in Oil and Gas Industry. 
+                  To be a trusted leader in technology innovation, recognized for transforming ideas into 
+                  impactful digital and smart technology solutions that shape the future. 
                 </p>
               </div>
             </div>
@@ -153,7 +134,8 @@ const AboutPage = () => {
                 </div>
                 <h3 className="fw-bold mb-3">Our Mission</h3>
                 <p className="text-muted">
-                  To provide our customers with Safe, quality, reliable, professional, and innovative LPG solutions.
+                  To deliver innovative, reliable and scalable ICT, software, electronics and IoT solutions that empower
+                  organizations and communities. 
                 </p>
               </div>
             </div>
@@ -193,33 +175,25 @@ const AboutPage = () => {
                 <ul className="list-unstyled text-start">
                   <li className="mb-2 d-flex align-items-center">
                     <i className="bi bi-check-circle-fill me-2" style={{ color: '#28a745', fontSize: '0.9rem' }}></i>
-                    <span className="text-muted">Integrity and Trust</span>
+                    <span className="text-muted">Innovation</span>
                   </li>
                   <li className="mb-2 d-flex align-items-center">
                     <i className="bi bi-check-circle-fill me-2" style={{ color: '#28a745', fontSize: '0.9rem' }}></i>
-                    <span className="text-muted">Safety</span>
+                    <span className="text-muted">Integrity</span>
                   </li>
                   <li className="mb-2 d-flex align-items-center">
                     <i className="bi bi-check-circle-fill me-2" style={{ color: '#28a745', fontSize: '0.9rem' }}></i>
-                    <span className="text-muted">Loyalty & Teamwork</span>
-                  </li>
-                  <li className="mb-2 d-flex align-items-center">
-                    <i className="bi bi-check-circle-fill me-2" style={{ color: '#28a745', fontSize: '0.9rem' }}></i>
-                    <span className="text-muted">Entrepreneurial Spirit</span>
-                  </li>
-                  <li className="mb-2 d-flex align-items-center">
-                    <i className="bi bi-check-circle-fill me-2" style={{ color: '#28a745', fontSize: '0.9rem' }}></i>
-                    <span className="text-muted">Culture of Learning</span>
-                  </li>
-                  <li className="mb-2 d-flex align-items-center">
-                    <i className="bi bi-check-circle-fill me-2" style={{ color: '#28a745', fontSize: '0.9rem' }}></i>
-                    <span className="text-muted">Perseverance</span>
+                    <span className="text-muted">Reliability</span>
                   </li>
                   <li className="mb-2 d-flex align-items-center">
                     <i className="bi bi-check-circle-fill me-2" style={{ color: '#28a745', fontSize: '0.9rem' }}></i>
                     <span className="text-muted">Excellence</span>
                   </li>
-                </ul>
+                  <li className="mb-2 d-flex align-items-center">
+                    <i className="bi bi-check-circle-fill me-2" style={{ color: '#28a745', fontSize: '0.9rem' }}></i>
+                    <span className="text-muted">Customer-Centric Approach</span>
+                  </li>
+                 </ul>
               </div>
             </div>
           </div>
@@ -282,12 +256,9 @@ const AboutPage = () => {
               <blockquote className="mb-0">
                 <i className="bi bi-quote" style={{ color: '#ffc107', opacity: 0.5, fontSize: '3rem', display: 'block', marginBottom: '1rem' }}></i>
                 <p className="fs-4 fst-italic mb-4" style={{ color: '#212529' }}>
-                  "We are committed to providing our clients the best designs, installation and NDT inspections, 
-                  maintenance and repairs, LPG equipment and accessory supplies, consultancy services.
-                  Recognizing the development and industry trends in Uganda, there is an increased need for safe and 
-                  cost-effective technical energy solutions.
-                  At SynerPhix, we don't just follow trends – we create them. Our journey is about building 
-                  solutions that last and making a meaningful impact in the communities we serve."
+                  "We are committed to delivering solutions that are not only technically sound but also aligned with our clients' goals, 
+                  helping them achieve greater effiiency, competitiveness and success in an increasingly digital world.
+                  At SynerPhix, we believe technology should solve real world problems and create meaningful impact."
                 </p>
                 <footer className="mt-3 fw-semibold" style={{ color: '#6c757d' }}>
                   Livingstone Obbo, Founder & CEO

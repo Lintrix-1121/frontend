@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useBlogStore from '../../stores/shared/blogStore';
-import back from '../../assets/back.png'
+import back from '../../assets/breadboard.jpg'
 
 const BlogView = () => {
   const { 
@@ -118,7 +118,7 @@ const BlogView = () => {
       <header 
   className="position-relative overflow-hidden py-5"
   style={{
-    backgroundImage: `url(${back})`, // You'll need to import back image
+    backgroundImage: `url(${back})`, 
     backgroundSize: 'cover',
     backgroundPosition: 'center'
   }}
@@ -127,7 +127,7 @@ const BlogView = () => {
   <div 
     className="position-absolute top-0 start-0 w-100 h-100"
     style={{
-      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
       zIndex: 1
     }}
   />

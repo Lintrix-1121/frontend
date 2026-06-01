@@ -4,7 +4,7 @@ import useCareerStore from '../../stores/shared/careerStore';
 import JobList from '../../components/career/JobList';
 import JobFilters from '../../components/career/JobFilters';
 import CareerStats from '../../components/career/CareerStats';
-import back from '../../assets/back.png'
+import back from '../../assets/breadboard.jpg'
 
 const CareersPage = () => {
   const {
@@ -168,7 +168,7 @@ const CareersPage = () => {
         <div 
           className="position-absolute top-0 start-0 w-100 h-100"
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
             zIndex: 1
           }}
         />

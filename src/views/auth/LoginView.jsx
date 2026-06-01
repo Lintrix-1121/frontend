@@ -322,7 +322,7 @@ const LoginView = () => {
         )}
         
         {/* Toggle link to show/hide role selection */}
-        <button
+        {/* <button
           type="button"
           className="btn btn-link text-decoration-none mb-4 w-100"
           style={{ color: '#28a745' }}
@@ -330,7 +330,7 @@ const LoginView = () => {
         >
           {showRoleSelection ? 'Hide role selection' : 'Sign in as different role?'}
         </button>
-        
+         */}
         {/* Social Login Icons */}
         <div className="d-flex justify-content-center gap-3 mb-4">
           {['google', 'facebook', 'github'].map((provider) => (

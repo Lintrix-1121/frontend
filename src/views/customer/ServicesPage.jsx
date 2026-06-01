@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useServiceStore from '../../stores/shared/useServiceStore';
 import ChooseUs from '../../components/customer/ChooseUs';
-import back from '../../assets/back.png'
+import schematic from '../../assets/schematic.jpg'
 
 const ServicesPage = () => {
   const { services, loading, fetchServices } = useServiceStore();
@@ -57,9 +57,9 @@ const ServicesPage = () => {
             fontSize: '1.1rem',
             lineHeight: '1.6'
           }}>
-            SynerPhix provides customized LPG solutions for commercial and industrial applications. 
-            From bulk storage installations to consistent supply chain management, we deliver optimized, 
-            cost-effective energy designed to maximize your efficiency and productivity.
+            SynerPhix delivers innovative technology solutions that helps businesses, organizations and communities thrive in
+             a rapidly evolving digital world. Our expertise spans ICT infrastructure, software development, electronics engineering
+             and smart connected systems enabling us to provide end-to-end solutions tailored to your unique needs.
           </p>
         </div>
 
