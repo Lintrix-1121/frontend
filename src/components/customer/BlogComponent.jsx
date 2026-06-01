@@ -15,7 +15,7 @@ const HomeBlogComponent = () => {
   const [recentBlogs, setRecentBlogs] = useState([]);
 
   // Get base URL for images
-  const UPLOADS_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+  const UPLOADS_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
 
   // Construct image URL function
   const constructImageUrl = (imagePath) => {

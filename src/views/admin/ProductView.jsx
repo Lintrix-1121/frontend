@@ -142,7 +142,7 @@ const getProductThumbnail = (product) => {
   if (!product) return 'https://via.placeholder.com/400';
   
   // Use environment variable with fallback
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+  const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
   
   // If thumbnail is already set and valid
   if (product.thumbnail && 

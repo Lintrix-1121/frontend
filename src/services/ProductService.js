@@ -233,7 +233,7 @@ class ProductService {
       const thumbnail = processedProduct.thumbnail.trim();
       if (thumbnail.startsWith('/') && !thumbnail.startsWith('//')) {
         // Convert relative URL to absolute (use your backend URL)
-        const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+        const backendUrl = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
         // Remove /api/ prefix if present
         const cleanThumbnail = thumbnail.startsWith('/api/') ? 
           thumbnail.replace(/^\/api\//, '/') : thumbnail;
@@ -243,7 +243,7 @@ class ProductService {
     
     // Convert image URLs to absolute
     if (Array.isArray(processedProduct.images)) {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+      const backendUrl = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
       
       processedProduct.images = processedProduct.images.map(img => {
         if (typeof img === 'string') {
@@ -606,7 +606,7 @@ export default new ProductService();
 //     if (processedProduct.thumbnail && typeof processedProduct.thumbnail === 'string') {
 //       const thumbnail = processedProduct.thumbnail.trim();
 //       if (thumbnail.startsWith('/') && !thumbnail.startsWith('//')) {
-//         const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+//         const backendUrl = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
 //         const cleanThumbnail = thumbnail.startsWith('/api/') ? 
 //           thumbnail.replace(/^\/api\//, '/') : thumbnail;
 //         processedProduct.thumbnail = `${backendUrl}${cleanThumbnail}`;
@@ -615,7 +615,7 @@ export default new ProductService();
     
 //     // Convert image URLs to absolute
 //     if (Array.isArray(processedProduct.images)) {
-//       const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+//       const backendUrl = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
       
 //       processedProduct.images = processedProduct.images.map(img => {
 //         if (typeof img === 'string') {

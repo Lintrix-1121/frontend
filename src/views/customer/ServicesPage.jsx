@@ -16,7 +16,7 @@ const ServicesPage = () => {
     if (!imagePath) return null;
     if (imagePath.startsWith('http')) return imagePath;
 
-    const backendUrl = 'http://localhost:2090';
+    const backendUrl = 'https://api.logiphix.tech';
     const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
     return `${backendUrl}/${cleanPath}`;
   };

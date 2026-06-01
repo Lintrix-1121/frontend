@@ -20,7 +20,7 @@ const parseProductImages = (product) => {
   }
   
   // Define backend URL
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+  const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
   
   // Convert thumbnail URL to absolute
   if (processedProduct.thumbnail && typeof processedProduct.thumbnail === 'string') {
@@ -442,7 +442,7 @@ const useProductStore = create((set, get) => ({
   getProductThumbnail: (product) => {
     if (!product) return 'https://via.placeholder.com/400';
     
-    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+    const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
     
     if (product.thumbnail && 
         product.thumbnail !== 'null' && 
@@ -557,7 +557,7 @@ export default useProductStore;
 //   }
   
 //   // Define backend URL
-//   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+//   const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
   
 //   // Convert thumbnail URL to absolute
 //   if (processedProduct.thumbnail && typeof processedProduct.thumbnail === 'string') {
@@ -1077,7 +1077,7 @@ export default useProductStore;
 //   getProductThumbnail: (product) => {
 //     if (!product) return 'https://via.placeholder.com/400';
     
-//     const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+//     const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
     
 //     if (product.thumbnail && 
 //         product.thumbnail !== 'null' && 

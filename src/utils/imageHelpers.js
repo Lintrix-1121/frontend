@@ -3,10 +3,10 @@
 /**
  * Get product thumbnail URL
  * @param {Object} product - Product object
- * @param {string} backendUrl - Backend base URL (default: http://localhost:2090)
+ * @param {string} backendUrl - Backend base URL (default: https://api.logiphix.tech)
  * @returns {string} Thumbnail URL
  */
-export const getProductThumbnail = (product, backendUrl = 'http://localhost:2090') => {
+export const getProductThumbnail = (product, backendUrl = 'https://api.logiphix.tech') => {
   if (!product) return 'https://via.placeholder.com/400';
   
   if (product.thumbnail && 
@@ -54,7 +54,7 @@ export const getProductThumbnail = (product, backendUrl = 'http://localhost:2090
  * @param {string} backendUrl - Backend base URL
  * @returns {Array} Array of image URLs
  */
-export const getProductImages = (product, backendUrl = 'http://localhost:2090') => {
+export const getProductImages = (product, backendUrl = 'https://api.logiphix.tech') => {
   if (!product) return [];
   
   let images = [];
@@ -106,6 +106,6 @@ export const getProductImages = (product, backendUrl = 'http://localhost:2090') 
  * @param {string} backendUrl - Backend base URL
  * @returns {string} Main image URL
  */
-export const getMainProductImage = (product, backendUrl = 'http://localhost:2090') => {
+export const getMainProductImage = (product, backendUrl = 'https://api.logiphix.tech') => {
   return getProductThumbnail(product, backendUrl);
 };

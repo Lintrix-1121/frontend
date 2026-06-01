@@ -41,7 +41,7 @@ const ServicesView = () => {
     }
     
     // Your backend URL (adjust as needed)
-    const backendUrl = 'http://localhost:2090';
+    const backendUrl = 'https://api.logiphix.tech';
     
     // Clean the path - remove leading slash if present
     const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;

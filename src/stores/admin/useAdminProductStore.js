@@ -26,7 +26,7 @@ const parseProductImages = (product) => {
   }
   
   // Define backend URL - MAKE SURE THIS MATCHES YOUR BACKEND
-  const BACKEND_URL = 'http://localhost:2090'; // Update this
+  const BACKEND_URL = 'https://api.logiphix.tech'; // Update this
   
   // Convert thumbnail URL to absolute
   if (processedProduct.thumbnail && typeof processedProduct.thumbnail === 'string') {

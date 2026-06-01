@@ -33,8 +33,8 @@
 //   const [debugData, setDebugData] = useState(null);
 
 //   // Get base URL from environment or use current origin
-//   const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
-//   const UPLOADS_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+//   const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
+//   const UPLOADS_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
 
 //   // Debug logs
 //   useEffect(() => {
@@ -1044,8 +1044,8 @@
 //                 <li>
 //                   <strong>Create a .env file</strong> in your React project root:
 //                   <pre className="bg-dark text-light p-2 mt-1 small">
-// REACT_APP_API_URL=http://localhost:2090<br />
-// REACT_APP_UPLOADS_URL=http://localhost:2090
+// REACT_APP_API_URL=https://api.logiphix.tech<br />
+// REACT_APP_UPLOADS_URL=https://api.logiphix.tech
 //                   </pre>
 //                 </li>
 //                 <li>
@@ -1121,8 +1121,8 @@ const BlogManagement = () => {
   const [debugData, setDebugData] = useState(null);
 
   // Get base URL from environment or use current origin
-  const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
-  const UPLOADS_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
+  const UPLOADS_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
 
   // Debug logs
   useEffect(() => {

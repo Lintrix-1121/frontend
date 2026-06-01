@@ -44,7 +44,7 @@ const addBlogHelpers = (blog) => ({
     if (!this.featuredImage && !this.featuredImageUrl) return null;
     
     const imagePath = this.featuredImage || this.featuredImageUrl;
-    const baseUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:2090';
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://api.logiphix.tech';
     
     if (imagePath.startsWith('http')) return imagePath;
     if (imagePath.startsWith('/uploads')) return `${baseUrl}${imagePath}`;

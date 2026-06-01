@@ -6,7 +6,7 @@
  * @param {string} backendUrl - Backend base URL
  * @returns {Object} Product with parsed images
  */
-export const parseProductImages = (product, backendUrl = 'http://localhost:2090') => {
+export const parseProductImages = (product, backendUrl = 'https://api.logiphix.tech') => {
   if (!product) return product;
   
   const processedProduct = { ...product };
@@ -78,7 +78,7 @@ export const parseProductImages = (product, backendUrl = 'http://localhost:2090'
  * @param {string} backendUrl - Backend base URL
  * @returns {Array} Array of products with parsed images
  */
-export const parseProductImagesArray = (products, backendUrl = 'http://localhost:2090') => {
+export const parseProductImagesArray = (products, backendUrl = 'https://api.logiphix.tech') => {
   if (!Array.isArray(products)) return [];
   return products.map(product => parseProductImages(product, backendUrl));
 };
@@ -89,7 +89,7 @@ export const parseProductImagesArray = (products, backendUrl = 'http://localhost
  * @param {string} backendUrl - Backend base URL
  * @returns {string} Thumbnail URL
  */
-export const getProductThumbnail = (product, backendUrl = 'http://localhost:2090') => {
+export const getProductThumbnail = (product, backendUrl = 'https://api.logiphix.tech') => {
   if (!product) return 'https://via.placeholder.com/400';
   
   if (product.thumbnail && 
