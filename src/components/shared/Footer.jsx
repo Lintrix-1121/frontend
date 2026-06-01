@@ -15,7 +15,7 @@ const Footer = () => {
     },
     {
       title: "Services",
-      links: ["LPG Systems Design", "LPG Systems and Pipeline Installation", "NDT and DT Testing", "LPG Gas Supply and Distribution", "LPG Consultancy Services"]
+      links: ["ICT Infrastructure", "Software Solutions", "Electronics & Embedded Systems", "IoT & Smart Systems"]
     },
     {
       title: "Legal",
@@ -42,8 +42,8 @@ const Footer = () => {
                 <span className="text-white">Phix</span>
               </h3>
               <p className="text-white-50 mb-4">
-                Leading the way in innovative safe solutions for your LPG systems. 
-                We transform ideas into reality with expert services.
+                Transforming Ideas into Intelligent Technology Solutions - from Infrastructure and Software to 
+                Embedded Electronics and Smart Connected Systems.
               </p>
             </div>
             

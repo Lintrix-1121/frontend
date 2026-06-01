@@ -6,19 +6,19 @@ const ContactInfo = () => {
     {
       icon: <i className="bi bi-geo-alt"></i>,
       title: "Address",
-      content: "Trust Arcade, Abayita-Entebbe Road. P.O Box 700332, Entebbe, Uganda",
+      content: "Mall, Kawuku-Nakawuka Road. P.O Box _, Entebbe, Uganda",
       color: '#0d6efd'
     },
     {
       icon: <i className="bi bi-telephone"></i>,
       title: "Phone",
-      content: "+256 740938040",
+      content: "+256 786687764",
       color: '#28a745'
     },
     {
       icon: <i className="bi bi-envelope"></i>,
       title: "Email",
-      content: "info@natgasuganda.com",
+      content: "info@synerphix.com",
       color: '#dc3545'
     }
   ];

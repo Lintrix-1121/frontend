@@ -1,6 +1,6 @@
 // src/components/PartnersSection.jsx
 import React from 'react';
-import back from '../../assets/back.png'
+import back from '../../assets/breadboard.jpg'
 
 /* =========================
    Partner Logos Imports
@@ -21,19 +21,19 @@ import harris from '../../assets/partners/harris.jpg';
 
 const PartnersSection = () => {
   const partners = [
-    { company: "Total Energies", product: "Steel Pipes", logo: total, region: "Global" },
-    { company: "Royal Netherlands Embassy", product: "Gas Detectors & Control Panels", logo: royal, region: "Global" },
-    { company: "Equity Bank", product: "Vaporizers & SNG Modules", logo: equity, region: "UG" },
-    { company: "UPIK", product: "Copper Pipes", logo: upik, region: "UG" },
-    { company: "UNOC", product: "Gas Tanks", logo: unoc, region: "UG" },
-    { company: "Shell", product: "Gas Meters & Regulators", logo: vivo, region: "Global" },
-    { company: "Serena Hotel", product: "Pumps & Valves", logo: serena, region: "UG" },
-    { company: "Fine Spinners", product: "Pressure Vessels & Storage Tanks", logo: spiners, region: "UG" },
-    { company: "Stabex", product: "Tankers", logo: stabex, region: "Global" },
-    { company: "Prime Concepts", product: "Valves & Safety Regulators", logo: prime, region: "UG" },
-    { company: "UBL", product: "Coupling Assemblies & Filters", logo: ubl, region: "EU" },
-    { company: "Nicollete International Schools", product: "Gas Meters & Detectors", logo: nicolete, region: "Global" },
-    { company: "Hariss International", product: "Winches & Handling Systems", logo: harris, region: "Global" },
+    // { company: "Total Energies", product: "Steel Pipes", logo: total, region: "Global" },
+    // { company: "Royal Netherlands Embassy", product: "Gas Detectors & Control Panels", logo: royal, region: "Global" },
+    // { company: "Equity Bank", product: "Vaporizers & SNG Modules", logo: equity, region: "UG" },
+    // { company: "UPIK", product: "Copper Pipes", logo: upik, region: "UG" },
+    // { company: "UNOC", product: "Gas Tanks", logo: unoc, region: "UG" },
+    // { company: "Shell", product: "Gas Meters & Regulators", logo: vivo, region: "Global" },
+    // { company: "Serena Hotel", product: "Pumps & Valves", logo: serena, region: "UG" },
+    // { company: "Fine Spinners", product: "Pressure Vessels & Storage Tanks", logo: spiners, region: "UG" },
+    // { company: "Stabex", product: "Tankers", logo: stabex, region: "Global" },
+    // { company: "Prime Concepts", product: "Valves & Safety Regulators", logo: prime, region: "UG" },
+    // { company: "UBL", product: "Coupling Assemblies & Filters", logo: ubl, region: "EU" },
+    // { company: "Nicollete International Schools", product: "Gas Meters & Detectors", logo: nicolete, region: "Global" },
+    // { company: "Hariss International", product: "Winches & Handling Systems", logo: harris, region: "Global" },
   ];
 
   // Group by Region
@@ -58,7 +58,7 @@ const PartnersSection = () => {
         <div 
           className="position-absolute top-0 start-0 w-100 h-100"
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
             zIndex: 1
           }}
         />
@@ -78,11 +78,11 @@ const PartnersSection = () => {
         <div className="container position-relative py-5" style={{ zIndex: 3 }}>
           <div className="row align-items-center">
             <div className="col-lg-8">
-              <h1 className="display-4 fw-bold text-success mb-4">
+              <h2 className="display-4 fw-bold text-success mb-4">
                 Our Global <span className="text-warning">Partners</span>
-              </h1>
+              </h2>
               <p className="lead text-white mb-0 opacity-75">
-                Collaborating with industry leaders worldwide to deliver excellence
+                Powering Innovation Through Strategic Alliances.
               </p>
             </div>
             <div className="col-lg-4 text-lg-end">
@@ -299,8 +299,8 @@ const PartnersSection = () => {
               <div className="col-lg-8">
                 <h3 className="fw-bold mb-2">Become a Partner</h3>
                 <p className="mb-0 opacity-75">
-                  Join our global network and collaborate with us to deliver
-                  world-class LPG and energy solutions.
+                  Join us in delivering innovative technology solutions, unlocking new opportunities and 
+                  creating lasting value together.
                 </p>
               </div>
               <div className="col-lg-4 text-lg-end mt-3 mt-lg-0">

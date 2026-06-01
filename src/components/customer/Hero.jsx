@@ -1,37 +1,37 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import HeroCurves from "./HeroCurves";
-import logo from "../../assets/logo/logo.png";
-import img1 from '../../assets/partners/harris.jpg'
-import img2 from '../../assets/partners/prime.jpg'
+import controllers from "../../assets/controllers.jpg";
+import sensors from '../../assets/sensor.jpg'
+import passive from '../../assets/passive.jpg'
 
 export default function Hero() {
   const [index, setIndex] = useState(0);
 
  const slides = [
   {
-    title: "Born To Secure Your LPG Systems.",
+    title: "Modern & Professional Products.                ",
     description:
-      "Design, install and maintain your LPG equipment with expert solutions.",
-    image: logo,
+      "Discover high-quality electronics components and innovative software solutions designed to power your projects and accelerate  your success.",
+    image: controllers,
     curve1: "#62a04f",
     curve2: "#fccf47",
     animation: "slideLeft",
   },
   {
-    title: "Precision Engineering. Maximum Safety.",
+    title: "Your Trusted Source for Electronics & Software.",
     description:
-      "Advanced LPG control systems built with certified safety standards.",
-    image: img1,
+      "From essential electronics components to cutting-edge software applications, we provide the tools that drive technological advancement.",
+    image: sensors,
     curve1: "#1e3a8a",
     curve2: "#60a5fa",
     animation: "zoom",
   },
   {
-    title: "Reliable Industrial Gas Solutions.",
+    title: "Future Ready Technology Solutions.             ",
     description:
-      "From installation to maintenance, we power industries efficiently.",
-    image: img2,
+      "Where innovation meets technology, Synerphix delivers scalable systems streamlined to your operational needs.",
+    image: passive,
     curve1: "#7c3aed",
     curve2: "#c084fc",
     animation: "fadeUp",
@@ -121,216 +121,4 @@ export default function Hero() {
     </div>
   );
 }
-
-
-
-// import { useState, useEffect } from "react";
-// import { motion, AnimatePresence } from "framer-motion";
-// import HeroCurves from "./HeroCurves";
-// import logo from "../../assets/logo/logo.png";
-// import logo2 from "../../assets/logo/logo2.png"; // Add more images
-// import logo3 from "../../assets/logo/logo3.png";
-
-// export default function Hero() {
-//   const [currentSlide, setCurrentSlide] = useState(0);
-//   const [direction, setDirection] = useState(0);
-
-//   // Content for each slide
-//   const slides = [
-//     {
-//       id: 1,
-//       title: "Born To Secure Your LPG Systems.",
-//       description: "Design, install and maintain your LPG equipment with expert solutions.",
-//       image: logo,
-//       curveColor: "#62a04fff",
-//       secondaryColor: "#fccf47ff"
-//     },
-//     {
-//       id: 2,
-//       title: "Innovation in Gas Safety.",
-//       description: "Advanced monitoring systems for complete peace of mind.",
-//       image: logo2,
-//       curveColor: "#4a7c9a",
-//       secondaryColor: "#e67e22"
-//     },
-//     {
-//       id: 3,
-//       title: "24/7 Professional Support.",
-//       description: "Round-the-clock assistance for all your LPG needs.",
-//       image: logo3,
-//       curveColor: "#8e44ad",
-//       secondaryColor: "#3498db"
-//     }
-//   ];
-
-//   // Auto-slide functionality
-//   useEffect(() => {
-//     const interval = setInterval(() => {
-//       handleSlideChange((currentSlide + 1) % slides.length, 1);
-//     }, 5000);
-    
-//     return () => clearInterval(interval);
-//   }, [currentSlide]);
-
-//   const handleSlideChange = (newIndex, newDirection) => {
-//     setDirection(newDirection);
-//     setCurrentSlide(newIndex);
-//   };
-
-//   const handleDotClick = (index) => {
-//     if (index !== currentSlide) {
-//       handleSlideChange(index, index > currentSlide ? 1 : -1);
-//     }
-//   };
-
-//   // Animation variants
-//   const textVariants = {
-//     enter: (direction) => ({
-//       x: direction > 0 ? 100 : -100,
-//       opacity: 0
-//     }),
-//     center: {
-//       x: 0,
-//       opacity: 1
-//     },
-//     exit: (direction) => ({
-//       x: direction < 0 ? 100 : -100,
-//       opacity: 0
-//     })
-//   };
-
-//   const imageVariants = {
-//     enter: (direction) => ({
-//       scale: 0.8,
-//       opacity: 0,
-//       rotateY: direction > 0 ? 45 : -45
-//     }),
-//     center: {
-//       scale: 1,
-//       opacity: 1,
-//       rotateY: 0
-//     },
-//     exit: (direction) => ({
-//       scale: 0.8,
-//       opacity: 0,
-//       rotateY: direction < 0 ? 45 : -45
-//     })
-//   };
-
-//   return (
-//     <div className="position-relative bg-light" style={{ minHeight: "600px", overflow: "hidden" }}>
-//       {/* Curves with animations */}
-//       <HeroCurves 
-//         color={slides[currentSlide].curveColor}
-//         secondaryColor={slides[currentSlide].secondaryColor}
-//         currentSlide={currentSlide}
-//       />
-      
-//       {/* Main content */}
-//       <div className="container d-flex align-items-center py-5" style={{ minHeight: "600px", position: "relative", zIndex: 2 }}>
-//         <div className="row w-100 align-items-center">
-//           {/* Text content with AnimatePresence */}
-//           <div className="col-md-6">
-//             <AnimatePresence mode="wait" custom={direction}>
-//               <motion.div
-//                 key={currentSlide}
-//                 custom={direction}
-//                 variants={textVariants}
-//                 initial="enter"
-//                 animate="center"
-//                 exit="exit"
-//                 transition={{
-//                   duration: 0.5,
-//                   ease: "easeInOut"
-//                 }}
-//               >
-//                 <motion.h1 
-//                   className="fw-bold display-4 mb-4"
-//                   initial={{ y: 20 }}
-//                   animate={{ y: 0 }}
-//                   transition={{ delay: 0.2, duration: 0.5 }}
-//                 >
-//                   {slides[currentSlide].title}
-//                 </motion.h1>
-//                 <motion.p 
-//                   className="text-muted lead"
-//                   initial={{ y: 20 }}
-//                   animate={{ y: 0 }}
-//                   transition={{ delay: 0.3, duration: 0.5 }}
-//                 >
-//                   {slides[currentSlide].description}
-//                 </motion.p>
-//               </motion.div>
-//             </AnimatePresence>
-//           </div>
-          
-//           {/* Image with AnimatePresence */}
-//           <div className="col-md-6">
-//             <AnimatePresence mode="wait" custom={direction}>
-//               <motion.div
-//                 key={currentSlide}
-//                 custom={direction}
-//                 variants={imageVariants}
-//                 initial="enter"
-//                 animate="center"
-//                 exit="exit"
-//                 transition={{
-//                   duration: 0.6,
-//                   ease: [0.16, 1, 0.3, 1] // Custom easing for smooth effect
-//                 }}
-//               >
-//                 <motion.img
-//                   src={slides[currentSlide].image}
-//                   alt={`Slide ${currentSlide + 1}`}
-//                   className="img-fluid rounded-3"
-//                   style={{ 
-//                     maxHeight: "400px", 
-//                     objectFit: "contain",
-//                     filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.15))"
-//                   }}
-//                   whileHover={{ scale: 1.05 }}
-//                   transition={{ type: "spring", stiffness: 300 }}
-//                 />
-//               </motion.div>
-//             </AnimatePresence>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Navigation dots with animations */}
-//       <motion.div 
-//         className="position-absolute bottom-0 start-50 translate-middle-x mb-4 d-flex gap-3"
-//         initial={{ y: 20, opacity: 0 }}
-//         animate={{ y: 0, opacity: 1 }}
-//         transition={{ delay: 0.5 }}
-//         style={{ zIndex: 3 }}
-//       >
-//         {slides.map((_, index) => (
-//           <motion.button
-//             key={index}
-//             onClick={() => handleDotClick(index)}
-//             className="nav-dot"
-//             style={{
-//               width: "12px",
-//               height: "12px",
-//               borderRadius: "50%",
-//               border: "none",
-//               backgroundColor: index === currentSlide ? slides[currentSlide].curveColor : "#ddd",
-//               cursor: "pointer",
-//               padding: 0
-//             }}
-//             whileHover={{ scale: 1.3 }}
-//             whileTap={{ scale: 0.9 }}
-//             animate={index === currentSlide ? {
-//               scale: [1, 1.2, 1],
-//               transition: { duration: 0.5, repeat: Infinity }
-//             } : {}}
-//             aria-label={`Go to slide ${index + 1}`}
-//           />
-//         ))}
-//       </motion.div>
-//     </div>
-//   );
-// }
-
 

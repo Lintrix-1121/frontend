@@ -45,7 +45,7 @@ export default function Header() {
     { name: "Home", path: "/home" },
     { name: "Shop", path: "/shop" },
     { name: "Services", path: "/serv" }, 
-    { name: "Projects", path: "projects"},
+    { name: "Projects", path: "/projects"},
     { name: "Blogs", path: "/blog/all" },
     { name: "Careers", path: "/careers" },
     { name: "Partners", path: "/partners" },

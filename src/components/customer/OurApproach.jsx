@@ -98,22 +98,16 @@ export default function OurApproach() {
             </div>
 
             <h3 className="fw-light mb-3 text-white">
-              Delivering Safe, Reliable LPG Engineering & Distribution Solutions
+              Integrating Smart Transformation
             </h3>
 
             <p style={{ color: "#cfd8e3" }}>
-              At SynerPhix Uganda Limited, we provide end-to-end LPG
-              solutions including system design, installation, maintenance and
-              bulk gas distribution. Our operations comply strictly with national
-              and international safety standards, ensuring dependable energy
-              supply for residential, commercial and industrial clients.
+              At SynerPhix Technologies Limited, we combine innovation, engineering excellence and systems integration
+              expertise to deliver secure, reliable and future-ready solutions.
             </p>
 
             <p style={{ color: "#cfd8e3" }}>
-              From pipeline engineering and storage systems to cylinder supply and
-              safety audits, our experienced technical team guarantees efficiency,
-              compliance and long-term reliability. We prioritize customer
-              safety, operational excellence and sustainable energy delivery.
+              
             </p>
 
           </div>

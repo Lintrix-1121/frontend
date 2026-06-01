@@ -118,7 +118,7 @@ const MapComponent = () => {
               </div>
               <h6 className="fw-bold mb-1" style={{ color: '#28a745' }}>SynerPhix Offices</h6>
               <p className="text-muted mb-2 small">
-                Trust Arcade, Abayita-Entebbe Road<br />
+                Mall, Kawuku-Nakawuka Road<br />
                 Entebbe, Uganda
               </p>
               <button 
