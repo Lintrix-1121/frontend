@@ -174,7 +174,7 @@ const App = () => {
             <Route path="services">
               <Route index element={<ServicesView />} />
               <Route path="new" element={<ServiceForm />} />
-              <Route path='/:id/edit' element={<ServiceForm/> }/>
+              <Route path=':id/edit' element={<ServiceForm/> }/>
               {/* <Route path="/:id" element={<ServiceDetailView />} /> */}
             </Route>
            
