@@ -422,7 +422,11 @@ class AdminProductService {
     }
   }
 
-  //EXISTING METHODS 
+  async getCategoriesFlat() {
+    const response = await api.get('/categories');
+    return response.data.data;  // flat array
+  }
+
   async deleteProduct(productId) {
     try {
       const response = await api.delete(`/admin/products/${productId}`);
