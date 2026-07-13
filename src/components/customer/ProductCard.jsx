@@ -1,8 +1,10 @@
 // src/components/customer/ProductCard.jsx
 import React, { useState } from 'react';
 import { Cart } from 'react-bootstrap-icons';
+import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity }) => {
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
 
   // Format price
@@ -25,34 +27,44 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity }) => {
     : 0;
 
   const handleAddToCart = (e) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent navigating to details
     onAddToCart(product);
   };
 
+  const handleCardClick = () => {
+    navigate(`/products/${product.id}`); // Adjust route as needed
+  };
+
   return (
-    <div 
+    <div
       className="h-100 d-flex flex-column"
       style={{
         background: 'rgba(255, 255, 255, 0.9)',
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(0, 0, 0, 0.1)',
+        borderRadius: '8px',
         transition: 'all 0.3s ease',
         cursor: 'pointer',
         transform: isHovered ? 'translateY(-5px)' : 'translateY(0)',
-        boxShadow: isHovered ? '0 10px 30px rgba(0,0,0,0.15)' : 'none'
+        boxShadow: isHovered ? '0 10px 30px rgba(0,0,0,0.15)' : '0 2px 8px rgba(0,0,0,0.05)',
+        overflow: 'hidden'
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}
     >
-      {/* Image Container */}
-      <div className="position-relative" style={{ height: '200px', overflow: 'hidden' }}>
+      {/* Image Container – responsive aspect ratio */}
+      <div className="position-relative" style={{ paddingTop: '75%', overflow: 'hidden' }}>
         <img
           src={product.thumbnail || product.images?.[0] || '/placeholder-image.jpg'}
-          className="w-100 h-100"
+          className="position-absolute top-0 start-0 w-100 h-100"
           style={{ 
             objectFit: 'cover',
             transition: 'transform 0.5s ease',
-            transform: isHovered ? 'scale(1.1)' : 'scale(1)'
+            transform: isHovered ? 'scale(1.05)' : 'scale(1)'
           }}
           alt={product.name}
           onError={(e) => {
@@ -63,18 +75,18 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity }) => {
         {/* Sale Badge */}
         {isOnSale && (
           <span 
-            className="position-absolute top-0 start-0 m-3"
+            className="position-absolute top-0 start-0 m-2 px-3 py-1"
             style={{
               background: 'rgba(220, 53, 69, 0.9)',
               backdropFilter: 'blur(5px)',
               color: 'white',
-              padding: '0.5rem 1rem',
-              fontSize: '0.875rem',
-              fontWeight: '500',
+              fontSize: '0.75rem',
+              fontWeight: '600',
+              borderRadius: '4px',
               border: '1px solid rgba(255, 255, 255, 0.2)'
             }}
           >
-            SALE {discountPercentage}% OFF
+            -{discountPercentage}%
           </span>
         )}
 
@@ -88,11 +100,11 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity }) => {
             }}
           >
             <span 
-              className="text-white fw-bold"
+              className="text-white fw-bold px-4 py-2"
               style={{
                 background: 'rgba(255, 255, 255, 0.2)',
                 backdropFilter: 'blur(5px)',
-                padding: '0.75rem 1.5rem',
+                borderRadius: '4px',
                 border: '1px solid rgba(255, 255, 255, 0.3)'
               }}
             >
@@ -103,11 +115,11 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity }) => {
       </div>
 
       {/* Product Details */}
-      <div className="p-3 d-flex flex-column grow">
+      <div className="p-3 d-flex flex-column flex-grow-1">
         {/* Category */}
         <small 
-          className="text-muted text-truncate mb-2"
-          style={{ fontSize: '0.8rem' }}
+          className="text-muted text-truncate mb-1"
+          style={{ fontSize: '0.75rem' }}
         >
           {product.category?.name || product.category || 'General'}
         </small>
@@ -116,23 +128,20 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity }) => {
         <h6 
           className="fw-semibold mb-2 text-dark"
           style={{ 
-            fontSize: '1rem',
+            fontSize: '0.95rem',
             lineHeight: '1.4',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            transition: 'color 0.3s ease'
+            overflow: 'hidden'
           }}
-          onMouseEnter={(e) => e.target.style.color = '#28a745'}
-          onMouseLeave={(e) => e.target.style.color = '#212529'}
         >
           {product.name}
         </h6>
 
         {/* Price Section */}
-        <div className="mb-3">
-          <span className="fw-bold" style={{ color: '#28a745', fontSize: '1.2rem' }}>
+        <div className="mb-2">
+          <span className="fw-bold" style={{ color: '#28a745', fontSize: '1.1rem' }}>
             {formatPrice(isOnSale ? product.salePrice : product.price)}
           </span>
           
@@ -141,51 +150,41 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity }) => {
               <small className="text-muted text-decoration-line-through ms-2">
                 {formatPrice(product.price)}
               </small>
-              <span 
-                className="ms-2 small"
-                style={{
-                  background: 'rgba(40, 167, 69, 0.1)',
-                  color: '#28a745',
-                  padding: '0.25rem 0.5rem'
-                }}
-              >
-                -{discountPercentage}%
-              </span>
             </>
           )}
         </div>
 
-        {/* Stock Status */}
+        {/* Stock Status – only if low stock */}
         {product.stockQuantity > 0 && product.stockQuantity <= 5 && (
           <small className="text-warning mb-2">
-            <i className="bi bi-exclamation-triangle me-1"></i>
-            Only {product.stockQuantity} left
+            ⚠️ Only {product.stockQuantity} left
           </small>
         )}
 
-        {/* Add to Cart Button */}
-        <div className="mt-auto">
+        {/* Add to Cart Button – stops propagation */}
+        <div className="mt-auto pt-2">
           <button
-            className="btn w-100"
+            className="btn w-100 py-2"
             style={{
               background: isInCart 
-                ? 'rgba(40, 167, 69, 0.9)' 
+                ? '#28a745' 
                 : product.stockQuantity === 0 
-                  ? 'rgba(108, 117, 125, 0.1)' 
-                  : 'rgba(40, 167, 69, 0.1)',
+                  ? '#e9ecef' 
+                  : 'transparent',
               color: isInCart 
                 ? 'white' 
                 : product.stockQuantity === 0 
                   ? '#6c757d' 
                   : '#28a745',
               border: isInCart 
-                ? '1px solid rgba(255, 255, 255, 0.2)' 
+                ? '1px solid #28a745' 
                 : product.stockQuantity === 0 
-                  ? '1px solid rgba(108, 117, 125, 0.2)' 
-                  : '1px solid rgba(40, 167, 69, 0.2)',
+                  ? '1px solid #dee2e6' 
+                  : '1px solid #28a745',
+              borderRadius: '50px',
               transition: 'all 0.3s ease',
-              opacity: product.stockQuantity === 0 ? 0.6 : 1,
-              cursor: product.stockQuantity === 0 ? 'not-allowed' : 'pointer'
+              fontWeight: '500',
+              fontSize: '0.9rem'
             }}
             onClick={handleAddToCart}
             disabled={product.stockQuantity === 0}
@@ -201,9 +200,9 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity }) => {
             onMouseLeave={(e) => {
               if (product.stockQuantity === 0) return;
               if (isInCart) {
-                e.target.style.background = 'rgba(40, 167, 69, 0.9)';
+                e.target.style.background = '#28a745';
               } else {
-                e.target.style.background = 'rgba(40, 167, 69, 0.1)';
+                e.target.style.background = 'transparent';
                 e.target.style.color = '#28a745';
               }
             }}
@@ -217,25 +216,24 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity }) => {
             }
           </button>
         </div>
-
-        {/* Quick View Indicator */}
-        {isHovered && (
-          <div 
-            className="position-absolute bottom-0 start-0 w-100 text-center py-2"
-            style={{
-              background: 'rgba(40, 167, 69, 0.9)',
-              backdropFilter: 'blur(5px)',
-              color: 'white',
-              fontSize: '0.875rem',
-              transform: 'translateY(0)',
-              transition: 'transform 0.3s ease',
-              borderTop: '1px solid rgba(255, 255, 255, 0.2)'
-            }}
-          >
-            Click for details <i className="bi bi-arrow-right ms-2"></i>
-          </div>
-        )}
       </div>
+
+      {/* Quick View Indicator – only on desktop hover */}
+      {isHovered && (
+        <div 
+          className="d-none d-md-block position-absolute bottom-0 start-0 w-100 text-center py-2"
+          style={{
+            background: 'rgba(40, 167, 69, 0.9)',
+            backdropFilter: 'blur(5px)',
+            color: 'white',
+            fontSize: '0.85rem',
+            borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+            pointerEvents: 'none' // So it doesn't block clicks
+          }}
+        >
+          Click for details →
+        </div>
+      )}
     </div>
   );
 };
