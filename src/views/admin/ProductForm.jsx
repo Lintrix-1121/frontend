@@ -11,7 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconFilled } from '@heroicons/react/24/solid';
 
-const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false }) => {
+const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, categories = [], subcategories = [] }) => {
   const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm({
     defaultValues: product || {}
   });
@@ -91,41 +91,6 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false }) => {
       }
     }
   }, [product, reset]); // Use reset instead of setValue
-
-
-  // useEffect(() => {
-  //   if (product) {
-  //     setValue('name', product.name || '');
-  //     setValue('sku', product.sku || '');
-  //     setValue('price', product.price || '');
-  //     setValue('comparePrice', product.comparePrice || '');
-  //     setValue('quantity', product.quantity || '');
-  //     setValue('description', product.description || '');
-  //     setValue('isOnSale', product.isOnSale || false);
-  //     setValue('salePrice', product.salePrice || '');
-  //     setValue('metaTitle', product.metaTitle || '');
-  //     setValue('metaDescription', product.metaDescription || '');
-  //     setValue('brand', product.brand || '');
-  //     setValue('categoryId', product.categoryId || '');
-  //     setValue('subCategoryId', product.subCategoryId || '');
-  //     setValue('cost', product.cost || '');
-  //     setValue('weight', product.weight || '');
-      
-  //     setImages(product.images || []);
-  //     setSpecifications(product.specifications || {});
-  //     setTags(product.tags || []);
-      
-  //     // Set thumbnail index
-  //     if (product.thumbnail && product.images) {
-  //       const index = product.images.findIndex(img => 
-  //         img.url === product.thumbnail || img === product.thumbnail
-  //       );
-  //       if (index !== -1) setThumbnailIndex(index);
-  //     }
-  //   }
-  // }, [product, setValue]);
-
-
 
 
   const handleImageUpload = async (e) => {
@@ -644,14 +609,16 @@ const onSubmitForm = (data) => {
             <div className="col-md-6">
               <label className="form-label">Category</label>
               <select {...register('categoryId')} className="form-select">
-                <option value="">Select Category</option>
-                {/* Categories would be populated from API */}
+                <option key={cat.CategoryId} value={cat.categoryId}>{cat.name}</option>
+                  
               </select>
             </div>
             <div className="col-md-6">
               <label className="form-label">Sub-Category</label>
               <select {...register('subCategoryId')} className="form-select">
-                <option value="">Select Sub-Category</option>
+                <option key={subcategories.CategoryId} value={subcategories.categoryId}>
+                  {sub.name}
+                </option>
               </select>
             </div>
             <div className="col-md-6">

@@ -25,7 +25,7 @@ const ProductFormContainer = () => {
 
         // Fetch categories
         const categoriesResponse = await AdminProductService.getCategories();
-        setCategories(categoriesResponse);
+        setCategories(categoriesResponse.data);
 
         if (productId) {
           // Fetch product
@@ -43,7 +43,7 @@ const ProductFormContainer = () => {
           // Fetch sub-categories based on selected category
           if (productData.categoryId) {
             const subs = await AdminProductService.getSubCategories(productData.categoryId);
-            setSubCategories(subs);
+            setSubCategories(subs.data);
           }
         }
       } catch (err) {

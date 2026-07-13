@@ -1,3 +1,5 @@
+import { Baseline } from "lucide-react"
+
 export default function TopBar() {
   return (
     <div className="bg-light border-bottom small">
@@ -5,11 +7,11 @@ export default function TopBar() {
 
         {/* LEFT: CONTACT */}
         <div className="d-flex gap-3 align-items-center">
-          <a href="mailto:info@synerphix.com">
+          <a href="mailto:info@synerphix.com" className="text-decoration-none" >
             info@synerphix.com
           </a>
-          <span>|</span>
-          <a href="tel:+256786687764">
+          {/* <span>|</span> */}
+          <a href="tel:+256786687764" className="text-decoration-none">
             +256786687764
           </a>
         </div>
