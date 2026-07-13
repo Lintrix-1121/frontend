@@ -41,9 +41,15 @@ const ProductFormContainer = () => {
           setProduct(processedProduct);
           
           // Fetch sub-categories based on selected category
+          const flatCategories = categoriesResponse;
+
           if (productData.categoryId) {
-            const subs = await AdminProductService.getSubCategories(productData.categoryId);
-            setSubCategories(subs.data);
+            const subs = flatCategories.filter(categories.parentId === productData.categoryId);
+            // const subs = await AdminProductService.getSubCategories(productData.categoryId);
+            setSubCategories(subs);
+          }
+          else {
+            setSubCategories([]);
           }
         }
       } catch (err) {

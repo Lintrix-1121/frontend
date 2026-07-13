@@ -13,29 +13,27 @@ const EditProductView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [controller, setController] = useState(null);
-  const [categories, setCategories] = useState(null);
-  const [subCategories, setSubCategories] = useState();
 
   useEffect(() => {
     const init = async () => {
       try {
-        console.log(`🔄 Initializing EditProductView for ID: ${id}`);
+        console.log(` Initializing EditProductView for ID: ${id}`);
         
         // Create controller
         const ctrl = new AdminProductController(productStore);
         setController(ctrl);
         
         // Check if controller has the method
-        console.log('🔍 Controller methods available:', {
+        console.log(' Controller methods available:', {
           loadProductById: typeof ctrl.loadProductById,
           updateProduct: typeof ctrl.updateProduct
         });
         
         // Fetch the specific product using the controller method
-        console.log(`📡 Calling loadProductById(${id})...`);
+        console.log(` Calling loadProductById(${id})...`);
         const productData = await ctrl.loadProductById(id);
         
-        console.log('✅ Product data received:', {
+        console.log(' Product data received:', {
           id: productData?.id,
           name: productData?.name,
           hasImages: productData?.images?.length || 0,
@@ -49,7 +47,7 @@ const EditProductView = () => {
         
         setProduct(productData);
       } catch (error) {
-        console.error('❌ Error loading product:', error);
+        console.error(' Error loading product:', error);
         toast.error(`Failed to load product: ${error.message}`);
         navigate('/admin/products');
       } finally {
@@ -68,13 +66,13 @@ const EditProductView = () => {
     
     try {
       setIsSubmitting(true);
-      console.log('🔄 Updating product with data:', formData);
+      console.log(' Updating product with data:', formData);
       
       await controller.updateProduct(id, formData);
       toast.success('Product updated successfully');
       navigate('/admin/products');
     } catch (error) {
-      console.error('❌ Update error:', error);
+      console.error(' Update error:', error);
       toast.error(`Update failed: ${error.message}`);
     } finally {
       setIsSubmitting(false);
@@ -143,8 +141,6 @@ const EditProductView = () => {
               onSubmit={handleSubmit}
               onCancel={handleCancel}
               isSubmitting={isSubmitting}
-              categories={}
-              subCategories={}
             />
           </div>
         </div>
