@@ -171,43 +171,43 @@ const ServiceForm = () => {
   setIsSubmitting(true);
   
   try {
-    // ✅ FIX: Use a different variable name
+    //Use a different variable name
     const data = new FormData();
     
     // Append all form data using the state variable
-    data.append('title', formData.title.trim()); // ✅ formData is the state variable
-    console.log('  ✅ Appended title:', formData.title.trim());
+    data.append('title', formData.title.trim()); //formData is the state variable
+    console.log(' Appended title:', formData.title.trim());
     
     if (formData.subTitle) {
       data.append('subTitle', formData.subTitle.trim());
-      console.log('  ✅ Appended subTitle:', formData.subTitle.trim());
+      console.log(' Appended subTitle:', formData.subTitle.trim());
     }
     
     if (formData.description) {
       data.append('description', formData.description.trim());
-      console.log('  ✅ Appended description:', formData.description.trim());
+      console.log(' Appended description:', formData.description.trim());
     }
     
     if (formData.icon) {
       data.append('icon', formData.icon.trim());
-      console.log('  ✅ Appended icon:', formData.icon.trim());
+      console.log(' Appended icon:', formData.icon.trim());
     }
     
     data.append('order', formData.order.toString());
-    console.log('  ✅ Appended order:', formData.order.toString());
+    console.log(' Appended order:', formData.order.toString());
     
     data.append('isActive', formData.isActive.toString());
-    console.log('  ✅ Appended isActive:', formData.isActive.toString());
+    console.log(' Appended isActive:', formData.isActive.toString());
     
     if (imageFile) {
-      console.log('  ✅ Appending image file:', imageFile.name);
+      console.log(' Appending image file:', imageFile.name);
       data.append('image', imageFile);
     } else {
-      console.log('  ⚠️ No image file to append');
+      console.log(' No image file to append');
     }
     
     // Debug: Log what's actually in FormData
-    console.log('🔍 Final FormData contents:');
+    console.log(' Final FormData contents:');
     let hasEntries = false;
     for (let [key, value] of data.entries()) {
       hasEntries = true;
@@ -215,7 +215,7 @@ const ServiceForm = () => {
     }
     
     if (!hasEntries) {
-      console.error('❌ FormData is empty!');
+      console.error(' FormData is empty!');
       toast.error('Form data is incomplete');
       setIsSubmitting(false);
       return;
@@ -224,15 +224,15 @@ const ServiceForm = () => {
     let result;
     
     if (isEditMode) {
-      console.log('✏️ Updating service ID:', id);
+      console.log(' Updating service ID:', id);
       const serviceId = parseInt(id);
-      result = await updateService(serviceId, data); // ✅ Pass the FormData object
+      result = await updateService(serviceId, data); // Pass the FormData object
     } else {
-      console.log('➕ Creating new service');
-      result = await createService(data); // ✅ Pass the FormData object
+      console.log(' Creating new service');
+      result = await createService(data); // Pass the FormData object
     }
     
-    console.log('📨 Result:', result);
+    console.log(' Result:', result);
     
     if (result.success) {
       const message = isEditMode ? 'Service updated successfully' : 'Service created successfully';
@@ -243,113 +243,12 @@ const ServiceForm = () => {
       toast.error(result.error || 'Operation failed');
     }
   } catch (error) {
-    console.error('❌ Unexpected error:', error);
+    console.error(' Unexpected error:', error);
     toast.error('An unexpected error occurred');
   } finally {
     setIsSubmitting(false);
   }
 };
-
-
-
-
-
-//   const handleSubmit = async (e) => {
-//   e.preventDefault();
-  
-//   console.log('Form submitted with data:', formData);
-  
-//   if (!validateForm()) {
-//     toast.error('Please fix the errors in the form');
-//     return;
-//   }
-  
-//   setIsSubmitting(true);
-  
-//   try {
-//     const data = new FormData();
-    
-//     // Append all form data with detailed logging
-//     console.log('📝 Building FormData:');
-    
-//     // IMPORTANT: Use the exact field names your backend expects
-//     // The backend is looking for 'title', not 'title'
-//     data.append('title', formData.title.trim());
-//     console.log('  ✅ Appended title:', formData.title.trim());
-    
-//     if (formData.subTitle) {
-//       data.append('subTitle', formData.subTitle.trim());
-//       console.log('  ✅ Appended subTitle:', formData.subTitle.trim());
-//     }
-    
-//     if (formData.description) {
-//       data.append('description', formData.description.trim());
-//       console.log('  ✅ Appended description:', formData.description.trim());
-//     }
-    
-//     if (formData.icon) {
-//       data.append('icon', formData.icon.trim());
-//       console.log('  ✅ Appended icon:', formData.icon.trim());
-//     }
-    
-//     data.append('order', formData.order.toString());
-//     console.log('  ✅ Appended order:', formData.order.toString());
-    
-//     data.append('isActive', formData.isActive.toString());
-//     console.log('  ✅ Appended isActive:', formData.isActive.toString());
-    
-//     if (imageFile) {
-//       console.log('  ✅ Appending image file:', {
-//         name: imageFile.name,
-//         type: imageFile.type,
-//         size: imageFile.size,
-//         lastModified: imageFile.lastModified
-//       });
-//       data.append('image', imageFile); // This is correct
-//     } else {
-//       console.log('  ⚠️ No image file to append');
-//     }
-    
-//     // Debug: Log what's actually in FormData
-//     console.log('🔍 Final FormData contents:');
-//     for (let [key, value] of data.entries()) {
-//       console.log(`  ${key}:`, value instanceof File ? `File: ${value.name}` : value);
-//     }
-    
-//     let result;
-    
-//     if (isEditMode) {
-//       console.log('✏️ Updating service ID:', id);
-//       // Make sure you're using the correct service ID
-//       const serviceId = parseInt(id);
-//       console.log('Parsed serviceId:', serviceId);
-//       result = await updateService(serviceId, formData);
-//     } else {
-//       console.log('➕ Creating new service');
-//       result = await createService(formData);
-//     }
-    
-//     console.log('📨 Result:', result);
-    
-//     if (result.success) {
-//       const message = isEditMode ? 'Service updated successfully' : 'Service created successfully';
-//       console.log('✅', message);
-//       toast.success(message);
-//       resetForm();
-//       navigate('/admin/services');
-//     } else {
-//       console.error('❌ Operation failed:', result.error);
-//       toast.error(result.error || 'Operation failed');
-//     }
-//   } catch (error) {
-//     console.error('❌ Unexpected error:', error);
-//     console.error('❌ Error response:', error.response?.data);
-//     toast.error('An unexpected error occurred');
-//   } finally {
-//     setIsSubmitting(false);
-//   }
-// };
-
 
   const resetForm = () => {
     setFormData({

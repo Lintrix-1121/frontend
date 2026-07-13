@@ -58,12 +58,12 @@ const ServicesView = () => {
           const fullUrl = getImageUrl(service.imageUrl);
           try {
             const response = await fetch(fullUrl, { method: 'HEAD' });
-            console.log(`📸 Image accessibility check for ${fullUrl}:`, {
+            console.log(` Image accessibility check for ${fullUrl}:`, {
               accessible: response.ok,
               status: response.status
             });
           } catch (error) {
-            console.error(`❌ Cannot access image ${fullUrl}:`, error.message);
+            console.error(` Cannot access image ${fullUrl}:`, error.message);
           }
         }
       });
@@ -108,7 +108,7 @@ const ServicesView = () => {
 
   // Handle image loading errors
   const handleImageError = (e, service) => {
-    console.error(`❌ Failed to load image for service "${service.title}":`, service.imageUrl);
+    console.error(` Failed to load image for service "${service.title}":`, service.imageUrl);
     
     // Replace the image with fallback UI
     const container = e.target.parentElement;
@@ -362,7 +362,7 @@ const ServicesView = () => {
                       </Link>
                       <div>
                         <Link
-                          to={`edit/${service.serviceId}`}
+                          to={`/admin/services/${service.serviceId}/edit`}
                           className="btn btn-outline-secondary btn-sm me-2"
                         >
                           <i className="bi bi-pencil me-1"></i>

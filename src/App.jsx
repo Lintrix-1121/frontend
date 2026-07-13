@@ -60,7 +60,7 @@ import Projects from './views/customer/Projects';
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const { isAuthenticated, user } = useAuthStore();
 
-  console.log('🔐 ProtectedRoute Check:', {
+  console.log(' ProtectedRoute Check:', {
     path: window.location.pathname,
     isAuthenticated,
     userRole: user?.role,
@@ -70,12 +70,12 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
   
   
   if (!isAuthenticated) {
-    console.log('❌ Not authenticated, redirecting to login');
+    console.log(' Not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
   
   if (requireAdmin && user?.role !== 'admin') {
-    console.log('🚫 Not admin, redirecting to home');
+    console.log(' Not admin, redirecting to home');
     return <Navigate to="/" replace />;
   }
   
@@ -174,6 +174,7 @@ const App = () => {
             <Route path="services">
               <Route index element={<ServicesView />} />
               <Route path="new" element={<ServiceForm />} />
+              <Route path='/:id/edit' element={<ServiceForm/> }/>
               {/* <Route path="/:id" element={<ServiceDetailView />} /> */}
             </Route>
            
