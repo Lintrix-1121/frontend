@@ -11,7 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconFilled } from '@heroicons/react/24/solid';
 
-const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, categories = [], subcategories = [] }) => {
+const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, categories = [], subCategories = [] }) => {
   const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm({
     defaultValues: product || {}
   });
@@ -609,16 +609,23 @@ const onSubmitForm = (data) => {
             <div className="col-md-6">
               <label className="form-label">Category</label>
               <select {...register('categoryId')} className="form-select">
-                <option key={cat.CategoryId} value={cat.categoryId}>{cat.name}</option>
-                  
+                <option value="">Select Category</option>
+                {categories.map(category => (
+                  <option key={category.categoryId} value={category.categoryId}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="col-md-6">
               <label className="form-label">Sub-Category</label>
               <select {...register('subCategoryId')} className="form-select">
-                <option key={subcategories.CategoryId} value={subcategories.categoryId}>
-                  {sub.name}
-                </option>
+                <option value="">Select Sub-Category</option>
+                {subCategories.map(sub => (
+                  <option key={sub.categoryId} value={sub.categoryId}>
+                    {sub.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="col-md-6">
