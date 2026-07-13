@@ -13,6 +13,8 @@ const EditProductView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [controller, setController] = useState(null);
+  const [categories, setCategories] = useState(null);
+  const [subCategories, setSubCategories] = useState();
 
   useEffect(() => {
     const init = async () => {
@@ -141,6 +143,8 @@ const EditProductView = () => {
               onSubmit={handleSubmit}
               onCancel={handleCancel}
               isSubmitting={isSubmitting}
+              categories={}
+              subCategories={}
             />
           </div>
         </div>
