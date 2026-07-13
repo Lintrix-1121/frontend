@@ -178,13 +178,12 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
   };
 
 
-  // In ProductForm.jsx - update the onSubmitForm function
 const onSubmitForm = (data) => {
   // Check if we have any images with files
   const hasFilesToUpload = images.some(img => img.file);
   
   if (!hasFilesToUpload) {
-    // If no files, just submit the data without images
+    // If no files, submit the data without images
     const formData = {
       ...data,
       price: parseFloat(data.price) || 0,

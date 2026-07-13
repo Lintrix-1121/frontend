@@ -16,6 +16,16 @@ const ProductFormContainer = () => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
+  const flattenCategories = (categories, flat = []) => {
+    categories.forEach(cat => {
+      flat.push(cat);
+      if (cat.children && cat.children.length) {
+        flattenCategories(cat.children, flat);
+      }
+    });
+    return flat;
+  };
+
   // Fetch product if editing
   useEffect(() => {
     const loadData = async () => {
@@ -25,7 +35,8 @@ const ProductFormContainer = () => {
 
         // Fetch categories
         const categoriesResponse = await AdminProductService.getCategories();
-        setCategories(categoriesResponse.data);
+        const flattenCategories = flattenCategories(categoriesResponse);
+        setCategories(flattenCategories);
 
         if (productId) {
           // Fetch product
