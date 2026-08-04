@@ -124,7 +124,7 @@ const App = () => {
               </PublicRoute>
             } 
           />
-          <Route path='/serv' element={<ServicesPage />} />
+          <Route path='/services' element={<ServicesPage />} />
           <Route path='/services/:id' element={<ServiceDetailView />} />
           <Route path='cart' element={<Cart />} />
           <Route path='contact' element={<ContactPage />} />

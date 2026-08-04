@@ -103,8 +103,8 @@ const BlogView = () => {
     return (
       <div className="container py-5">
         <div className="text-center py-5">
-          <div className="spinner-border text-secondary" role="status">
-            <span className="visually-hidden">Loading...</span>
+          <div className="spinner-border text-secondary" role="status" style={{ borderRadius: '0' }}>
+            <span className="visually-hidden">Loading..</span>
           </div>
           <p className="mt-2">Loading blog posts...</p>
         </div>

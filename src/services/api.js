@@ -12,7 +12,7 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    console.log('🌐 API Request:', {
+    console.log('API Request:', {
       method: config.method?.toUpperCase(),
       url: config.url,
       params: config.params,
@@ -24,13 +24,13 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
-      console.log('🔑 No authentication token found in localStorage');
+      console.log('No authentication token found in localStorage');
     }
     
     return config;
   },
   (error) => {
-    console.error('❌ API Request Error:', error);
+    console.error('API Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -38,7 +38,7 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
-    console.log('✅ API Response:', {
+    console.log('API Response:', {
       status: response.status,
       url: response.config.url,
       data: response.data
@@ -46,7 +46,7 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('❌ API Response Error:', {
+    console.error('API Response Error:', {
       message: error.message,
       status: error.response?.status,
       data: error.response?.data,
@@ -55,10 +55,10 @@ api.interceptors.response.use(
     
     // Handle specific error cases
     if (error.response?.status === 401) {
-      console.log('🔒 Unauthorized - redirecting to login');
+      console.log('Unauthorized - redirecting to login');
       // Redirect to login if needed
     } else if (error.response?.status === 404) {
-      console.log('🔍 Endpoint not found:', error.config.url);
+      console.log(' Endpoint not found:', error.config.url);
     }
     
     return Promise.reject(error);

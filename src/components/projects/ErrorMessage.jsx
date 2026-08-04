@@ -10,7 +10,7 @@ const ErrorMessage = ({ message, onRetry }) => {
           </svg>
         </div>
         <div className="ml-3 flex-1">
-          <p className="text-sm text-red-700">{message || 'An error occurred. Please try again.'}</p>
+          <p className="text-sm text-red-700 text-center">{message || 'An error occurred. Please try again.'}</p>
           {onRetry && (
             <button
               onClick={onRetry}

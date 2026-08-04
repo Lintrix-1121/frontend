@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { Cart } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
+    
+console.count("ProductCard rendered");
 
 const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity, basePath = '/products' }) => {
   const navigate = useNavigate();
@@ -41,6 +43,7 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity, basePath = 
   };
 
   return (
+
     <div
       className="h-100 d-flex flex-column"
       style={{
@@ -73,7 +76,11 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity, basePath = 
             transform: isHovered ? 'scale(1.04)' : 'scale(1)'
           }}
           alt={product.name}
-          onError={(e) => { e.target.src = '/placeholder-image.jpg'; }}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = '/placeholder-image.jpg';
+          }}
+          // onError={(e) => { e.target.src = '/placeholder-image.jpg'; }}
         />
 
         {/* Sale badge */}

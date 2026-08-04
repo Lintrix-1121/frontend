@@ -221,7 +221,7 @@ const HomeBlogComponent = () => {
       </div>
 
       {/* Inline Styles */}
-      <style jsx>{`
+      <style>{`
         .bg-white {
           background-color: white !important;
         }

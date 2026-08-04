@@ -30,9 +30,7 @@ import SyncStatusBadge from '../../components/shared/SyncStatusBadge';
 import useAuthStore from '../../stores/shared/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 
-/* -------------------------------------------------- */
 /* Enhanced Filters Component with Validation */
-/* -------------------------------------------------- */
 const ProductFilters = ({ register, errors, watch, onClear, isLoading }) => {
   const minPrice = watch('minPrice');
   const maxPrice = watch('maxPrice');
@@ -159,32 +157,7 @@ const getProductThumbnail = (product) => {
     return thumbnail;
   }
   
-  // ... rest of function remains the same
 };
-
-// const getProductThumbnail = (product) => {
-//   if (!product) return 'https://via.placeholder.com/400';
-  
-//   // If thumbnail is already set and valid
-//   if (product.thumbnail && 
-//       product.thumbnail !== 'null' && 
-//       !product.thumbnail.includes('placeholder') &&
-//       typeof product.thumbnail === 'string') {
-//     return product.thumbnail;
-//   }
-  
-//   // If we have images array, try to get thumbnail from there
-//   if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-//     // Find thumbnail image or use first image
-//     const thumbnailImage = product.images.find(img => img.isThumbnail) || product.images[0];
-//     if (thumbnailImage) {
-//       return thumbnailImage.url || thumbnailImage;
-//     }
-//   }
-  
-//   // Fallback
-//   return 'https://via.placeholder.com/400';
-// };
 
 const ProductsView = () => {
   const productStore = useAdminProductStore();
@@ -284,7 +257,7 @@ const ProductsView = () => {
     };
   }, [controller, _isInitialized, isLoading]);
 
-  // Setup form with validation - only when controller is ready
+  // Setup form with validation only when controller is ready
   const {
     register,
     handleSubmit,

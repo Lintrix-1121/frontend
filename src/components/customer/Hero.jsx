@@ -47,7 +47,7 @@ export default function Hero() {
 
   const currentSlide = slides[index];
 
-  // 🎯 Different animation styles
+  // Different animation styles
   const getAnimation = () => {
     switch (currentSlide.animation) {
       case "slideLeft":

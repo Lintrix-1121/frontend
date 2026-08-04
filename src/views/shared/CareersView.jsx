@@ -26,8 +26,8 @@ const CareersPage = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
 
   useEffect(() => {
-    console.log('🔍 CareersPage mounted');
-    console.log('📦 Initial store state:', { 
+    console.log('CareersPage mounted');
+    console.log('Initial store state:', { 
       jobs: jobs?.length, 
       loading, 
       error,
@@ -35,26 +35,26 @@ const CareersPage = () => {
     });
     
     const loadData = async () => {
-      console.log('📥 Starting to fetch data...');
+      console.log('Starting to fetch data...');
       
       try {
-        console.log('📥 Fetching jobs...');
+        console.log('Fetching jobs...');
         const jobsResult = await fetchJobs();
-        console.log('📦 Jobs result:', jobsResult);
+        console.log('Jobs result:', jobsResult);
         
-        console.log('📥 Fetching stats...');
+        console.log('Fetching stats...');
         const statsResult = await fetchCareerStats();
-        console.log('📦 Stats result:', statsResult);
+        console.log('Stats result:', statsResult);
         
         const currentState = useCareerStore.getState();
-        console.log('📦 Store after fetch:', {
+        console.log('Store after fetch:', {
           jobsLength: currentState.jobs?.length,
           jobs: currentState.jobs,
           loading: currentState.loading,
           error: currentState.error
         });
       } catch (err) { 
-        console.error('❌ Error loading data:', err);
+        console.error('Error loading data:', err);
       }
     };
     
@@ -62,7 +62,7 @@ const CareersPage = () => {
   }, []);
 
   useEffect(() => {
-    console.log('🔄 Jobs updated:', {
+    console.log('Jobs updated:', {
       jobsLength: jobs?.length,
       jobs: jobs,
       loading,
@@ -70,12 +70,12 @@ const CareersPage = () => {
     });
     
     const filtered = getFilteredJobs();
-    console.log('🔄 Filtered jobs:', filtered?.length, filtered);
+    console.log('Filtered jobs:', filtered?.length, filtered);
   }, [jobs, searchQuery, filters]);
 
   const filteredJobs = getFilteredJobs();
 
-  console.log('🎨 Rendering CareersPage with:', {
+  console.log('Rendering CareersPage with:', {
     jobsLength: jobs?.length,
     filteredLength: filteredJobs?.length,
     loading,
@@ -85,7 +85,7 @@ const CareersPage = () => {
   });
 
   if (loading && (!jobs || jobs.length === 0)) {
-    console.log('⏳ Showing loading spinner...');
+    console.log('Showing loading spinner...');
     return (
       <div 
         className="min-vh-100 d-flex justify-content-center align-items-center p-3"
