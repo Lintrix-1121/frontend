@@ -1,4 +1,3 @@
-// src/components/career/CareerEntryForm.jsx
 import React, { useState } from 'react';
 import useCareerStore from '../../stores/shared/careerStore';
 

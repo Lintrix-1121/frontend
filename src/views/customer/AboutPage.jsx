@@ -1,6 +1,4 @@
-// src/pages/AboutPage.jsx
 import React from 'react';
-//import Header from '../../components/shared/Header';
 import Footer from '../../components/shared/Footer';
 import CompanyStory from '../../components/customer/CompanyStory';
 import PartnersSection from '../../components/customer/PartnersSection';
@@ -9,7 +7,7 @@ import back from '../../assets/breadboard.jpg'
 const AboutPage = () => {
   return (
     <div style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
-      {/* <Header /> */}
+
       
       {/* Hero Section with Glass Morphism */}
       <section 

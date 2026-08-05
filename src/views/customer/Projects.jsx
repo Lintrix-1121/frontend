@@ -71,7 +71,7 @@ const Projects = () => {
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
         </div>
-
+    
         {showFilters && (
           <div className="mb-8">
             <ProjectFilters

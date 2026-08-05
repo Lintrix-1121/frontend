@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useBlogStore from '../../stores/shared/blogStore';
 import back from '../../assets/breadboard.jpg'
+import LoadingSpinner from '../../components/admin/LoadingSpinner';
 
 const BlogView = () => {
   const { 
@@ -99,18 +100,8 @@ const BlogView = () => {
     console.log('Searching for:', searchQuery);
   };
 
-  if (loading) {
-    return (
-      <div className="container py-5">
-        <div className="text-center py-5">
-          <div className="spinner-border text-secondary" role="status" style={{ borderRadius: '0' }}>
-            <span className="visually-hidden">Loading..</span>
-          </div>
-          <p className="mt-2">Loading blog posts...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) 
+    return <LoadingSpinner />
 
   return (
     <div className="blog-view">
@@ -217,51 +208,6 @@ const BlogView = () => {
     }
   `}</style>
 </header>
-      {/* <header className="py-5" style={{
-        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
-      }}>
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-lg-6">
-              <h1 className="display-5 fw-bold text-white mb-3">Our Blog</h1>
-              <p className="lead text-white-50 mb-0" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>
-                Stay updated with the latest news, insights, and industry trends
-              </p>
-            </div>
-            <div className="col-lg-6 mt-3 mt-lg-0">
-              <form onSubmit={handleSearch}>
-                <div className="input-group input-group-lg shadow-lg" style={{
-                  borderRadius: '0'
-                }}>
-                  <input
-                    type="text"
-                    className="form-control border-0"
-                    placeholder="Search articles..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.15)',
-                      color: 'white',
-                      borderRadius: '0'
-                    }}
-                  />
-                  <button className="btn btn-primary border-0" type="submit" style={{
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    backdropFilter: 'blur(10px)',
-                    borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '0'
-                  }}>
-                    <i className="bi bi-search"></i>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </header> */}
-
       <div className="container py-5">
         <div className="row">
           {/* Main Content */}
@@ -675,7 +621,7 @@ const BlogView = () => {
         </div>
       </div>
 
-      {/* Add some global styles for hover effects */}
+      {/*global styles for hover effects */}
       <style>{`
         .blog-view {
           background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);

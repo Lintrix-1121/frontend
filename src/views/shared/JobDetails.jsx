@@ -1,8 +1,7 @@
-// src/pages/JobDetailsPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useCareerStore from '../../stores/shared/careerStore';
-// import ApplicationForm from '../components/career/ApplicationForm';
+import LoadingSpinner from '../../components/admin/LoadingSpinner';
 
 const JobDetailsPage = () => {
   const { slugOrId } = useParams();
@@ -29,7 +28,7 @@ const JobDetailsPage = () => {
       
       loadJob();
 
-      // Cleanup function - this runs when component unmounts
+      // Cleanup function to run when component unmounts
       return () => {
         console.log('🧹 Cleaning up job details');
         clearCurrentJob();
@@ -84,17 +83,8 @@ const JobDetailsPage = () => {
     return types[type] || type || 'Not specified';
   };
 
-  if (loading) {
-    return (
-      <div className="container mt-5">
-        <div className="d-flex justify-content-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (loading) 
+    return <LoadingSpinner />;
 
   if (error || !currentJob) {
     return (
@@ -116,20 +106,6 @@ const JobDetailsPage = () => {
 
   return (
     <div>
-      {/* Breadcrumb */}
-      {/* <nav className="bg-light py-3">
-        <div className="container">
-          <ol className="breadcrumb mb-0">
-            <li className="breadcrumb-item">
-              <a href="/careers" style={{ textDecoration: 'none' }}>Careers</a>
-            </li>
-            <li className="breadcrumb-item active" aria-current="page">
-              {currentJob.title}
-            </li>
-          </ol>
-        </div>
-      </nav> */}
-
       <div className="container py-5">
         <div className="row">
           {/* Job Details */}
@@ -257,7 +233,6 @@ const JobDetailsPage = () => {
                   <button
                     className="btn btn-success btn-lg grow"
                     onClick={() => navigate(`/careers/apply/${currentJob.slug || currentJob.id}`)}
-                    // onClick={() => setShowApplicationForm(true)}
                     style={{ borderRadius: 0 }}
                   >
                     <i className="bi bi-send me-2"></i> Apply Now
@@ -384,13 +359,6 @@ const JobDetailsPage = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                {/* <ApplicationForm
-                  jobId={currentJob.id}
-                  jobTitle={currentJob.title}
-                  onSuccess={() => {
-                    setShowApplicationForm(false);
-                  }}
-                /> */}
                 <p className="text-center py-4">Application form coming soon...</p>
               </div>
             </div>

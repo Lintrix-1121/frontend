@@ -1,7 +1,7 @@
-// components/career/CareerDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCareerStore from '../../stores/shared/careerStore';
+import LoadingSpinner from '../../components/admin/LoadingSpinner';
 
 const CareerDashboard = () => {
   const { 
@@ -67,7 +67,7 @@ const CareerDashboard = () => {
     }
   };
 
-  // Mock data based on your image (fallback if API not ready)
+  // Mock data based on image (fallback if API not ready)
   const mockDashboardData = {
     summary: {
       totalApplications: 132000,
@@ -112,17 +112,8 @@ const CareerDashboard = () => {
   const data = dashboardData || mockDashboardData;
   const careerStats = stats || { totals: { jobs: jobs.length, applications: applications.length } };
 
-  if (loading && !dashboardData) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="d-flex justify-content-center align-items-center" style={{ height: '60vh' }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (loading && !dashboardData)
+    return <LoadingSpinner />
 
   return (
     <div className="container-fluid py-4">

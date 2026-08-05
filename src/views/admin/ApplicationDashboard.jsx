@@ -1,4 +1,3 @@
-// pages/admin/career/AdminCareerDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCareerStore from '../../stores/shared/careerStore';

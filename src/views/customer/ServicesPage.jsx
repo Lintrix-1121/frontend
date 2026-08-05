@@ -5,6 +5,7 @@ import useServiceStore from '../../stores/shared/useServiceStore';
 import ChooseUs from '../../components/customer/ChooseUs';
 import schematic from '../../assets/schematic.jpg'
 import RelatedTechnologies from '../../components/customer/RelatedTechnologies';
+import LoadingSpinner from '../../components/admin/LoadingSpinner';
 
 
 const ServicesPage = () => {
@@ -24,14 +25,17 @@ const ServicesPage = () => {
     return `${backendUrl}/${cleanPath}`;
   };
 
-  if (loading && services.length === 0) {
-    return (
-      <div className="container py-5 text-center">
-        <div className="spinner-border text-success" style={{ borderRadius: '0' }} />
-        <p className="mt-3">Loading services...</p>
-      </div>
-    );
-  }
+  if (loading && services.length === 0) 
+    return <LoadingSpinner />;
+    
+  //   {
+  //   return (
+  //     <div className="container py-5 text-center">
+  //       <div className="spinner-border text-success" style={{ borderRadius: '0' }} />
+  //       <p className="mt-3">Loading services...</p>
+  //     </div>
+  //   );
+  // }
 
   const [openFaq, setOpenFaq] = useState(0); //First FAQ open by default
 
@@ -509,8 +513,7 @@ const ServicesPage = () => {
           </div>
         </section>
     </div>
-
-...
+    
     </>
     
   );

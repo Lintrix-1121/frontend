@@ -11,6 +11,7 @@ import Pagination from '../../components/customer/Pagination';
 import back from '../../assets/breadboard.jpg';
 import Hero from '../../components/customer/Hero';
 import HorizontalNav from '../../components/HorizontalNav';
+import LoadingSpinner from '../../components/admin/LoadingSpinner';
 
 const ProductListingView = () => {
   const productStore = useProductStore();
@@ -85,19 +86,9 @@ const ProductListingView = () => {
   };
 
   // Loading state with glass design
-  if (loading) {
-    return (
-      <div className="container py-5">
-        <div className="text-center py-5">
-          <div className="spinner-border text-success" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-2 text-muted">Loading products...</p>
-        </div>
-      </div>
-    );
-  }
-
+  if (loading) 
+    return <LoadingSpinner />; 
+  
   // Error state with glass design
   if (error) {
     return (

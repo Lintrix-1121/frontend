@@ -1,8 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import useServiceStore from '../../stores/shared/useServiceStore';
 import toast from 'react-hot-toast';
+import LoadingSpinner from '../../components/admin/LoadingSpinner';
 
 const ServicesView = () => {
   const {
@@ -139,16 +139,8 @@ const ServicesView = () => {
     container.appendChild(fallback);
   };
 
-  if (loading && services.length === 0) {
-    return (
-      <div className="container py-5 text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <p className="mt-3">Loading services...</p>
-      </div>
-    );
-  }
+  if (loading && services.length === 0)
+    return <LoadingSpinner />;
 
   return (
     <div className="container-fluid py-4">
@@ -430,7 +422,7 @@ const ServicesView = () => {
         </div>
       </div>
       
-      {/* Debug Panel (remove in production) */}
+      {/* Debug Panel*/}
       <div className="card mt-4 border-info">
         <div className="card-header bg-info text-white">
           <h6 className="mb-0">

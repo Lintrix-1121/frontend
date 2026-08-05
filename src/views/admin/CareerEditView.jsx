@@ -1,4 +1,3 @@
-// src/pages/admin/career/EditJobPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import CareerEntryForm from '../../views/admin/CareerEntryForm';
@@ -13,7 +12,7 @@ const EditJobPage = () => {
   useEffect(() => {
     const loadJob = async () => {
       if (idOrSlug) {
-        console.log('📋 [EDIT PAGE] Fetching job with identifier:', idOrSlug);
+        console.log(' [EDIT PAGE] Fetching job with identifier:', idOrSlug);
         setIsLoading(true);
         await fetchJob(idOrSlug);
         setIsLoading(false);
@@ -29,7 +28,7 @@ const EditJobPage = () => {
   }, [idOrSlug, fetchJob, clearCurrentJob]);
 
   const handleSuccess = (updatedJob) => {
-    console.log('✅ [EDIT PAGE] Job updated successfully:', updatedJob);
+    console.log(' [EDIT PAGE] Job updated successfully:', updatedJob);
     navigate('/admin/careers');
   };
 

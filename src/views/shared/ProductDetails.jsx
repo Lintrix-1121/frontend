@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import api from '../../services/api'; // adjust path
+import api from '../../services/api'; 
 import { Cart } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 import ProductCard from '../../components/customer/ProductCard'; // for related products
+import LoadingSpinner from '../../components/admin/LoadingSpinner';
 
 const ProductDetail = () => {
   const { slugOrId } = useParams(); // captures slug or ID from URL
@@ -19,9 +20,6 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        // Try to fetch by slug first; if not found, try by ID
-        // Your API might have a single endpoint that accepts both
-        // Adjust according to your backend.
         const response = await api.get(`/products/${slugOrId}`);
         const productData = response.data.data;
         setProduct(productData);
@@ -39,8 +37,7 @@ const ProductDetail = () => {
         console.error('Error fetching product:', err);
         setError('Product not found');
         toast.error('Product not found');
-        // Optionally navigate back
-        // navigate('/shop');
+         navigate('/shop');
       } finally {
         setLoading(false);
       }
@@ -58,13 +55,10 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
-    // Implement add to cart logic (could use a store or context)
     try {
       setIsAddingToCart(true);
-      // For example, call a cart API or update context
       // For now, just show toast
       toast.success(`Added ${product.name} to cart`);
-      // You can also call onAddToCart prop if needed
     } catch (error) {
       toast.error('Failed to add to cart');
     } finally {
@@ -72,15 +66,8 @@ const ProductDetail = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="container py-5 text-center">
-        <div className="spinner-border text-success" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  if (loading) 
+    return <LoadingSpinner />;
 
   if (error || !product) {
     return (
@@ -193,7 +180,7 @@ const ProductDetail = () => {
               </button>
             </div>
             <button
-              className="btn btn-success btn-lg flex-grow-1"
+              className="btn btn-success btn-lg grow"
               onClick={handleAddToCart}
               disabled={product.stockQuantity === 0 || isAddingToCart}
             >

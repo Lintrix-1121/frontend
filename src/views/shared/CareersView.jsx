@@ -5,6 +5,7 @@ import JobList from '../../components/career/JobList';
 import JobFilters from '../../components/career/JobFilters';
 import CareerStats from '../../components/career/CareerStats';
 import back from '../../assets/breadboard.jpg'
+import LoadingSpinner from '../../components/admin/LoadingSpinner';
 
 const CareersPage = () => {
   const {
@@ -84,24 +85,9 @@ const CareersPage = () => {
     filters
   });
 
-  if (loading && (!jobs || jobs.length === 0)) {
-    console.log('Showing loading spinner...');
-    return (
-      <div 
-        className="min-vh-100 d-flex justify-content-center align-items-center p-3"
-        style={{
-          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        }}
-      >
-        <div className="text-center">
-          <div className="spinner-border text-success" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-4 text-secondary">Loading career opportunities...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading && (!jobs || jobs.length === 0))
+    return <LoadingSpinner />;
+      
 
   if (error) {
     return (

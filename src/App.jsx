@@ -155,8 +155,7 @@ const App = () => {
           >
             <Route index element={<ProductListingView />} />
             <Route path=":category" element={<ProductListingView />} />
-            
-            {/* Add other customer routes here */}
+           
           </Route>
           
           {/* Admin Routes (logged in as admin) */}

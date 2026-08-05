@@ -8,6 +8,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   AreaChart, Area, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from 'recharts';
+import LoadingSpinner from '../../components/admin/LoadingSpinner';
 
 const BlogDashboard = () => {
   // Store state
@@ -192,18 +193,8 @@ const createMockStats = () => {
     return getRecentBlogs ? getRecentBlogs(5) : [];
   }, [blogs, getRecentBlogs]);
 
-  if (loading && !blogs.length) {
-    return (
-      <div className="container py-5">
-        <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-3 text-muted">Loading blog dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading && !blogs.length)
+    return <LoadingSpinner />;
 
   return (
     <div className="container-fluid py-4">

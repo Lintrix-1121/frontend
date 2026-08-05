@@ -1,4 +1,3 @@
-// components/shared/ConfirmDialog.jsx
 import React from 'react';
 
 const ConfirmDialog = ({ 

@@ -1,4 +1,3 @@
-// src/components/customer/ProductCard.jsx
 import React, { useState } from 'react';
 import { Cart } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
@@ -170,7 +169,7 @@ const ProductCard = ({ product, onAddToCart, isInCart, cartQuantity, basePath = 
         {/* Spacer to push button down */}
         <div className="grow"></div>
 
-        {/* Add to Cart Button – stops event propagation */}
+        {/*Cart Button - stops event propagation */}
         <button
           className="btn w-100 py-2 mt-2"
           style={{

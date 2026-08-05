@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useBlogStore from '../../stores/shared/blogStore';
 import BlogList from './BlogList';
+import LoadingSpinner from '../../components/admin/LoadingSpinner';
 
 const BlogDetail = () => {
   const { slugOrId } = useParams();
@@ -137,20 +138,8 @@ const BlogDetail = () => {
     navigate(-1);
   };
 
-  if (loading) {
-    return (
-      <div className="container py-5">
-        <div className="row justify-content-center">
-          <div className="col-md-8 text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-3 text-muted">Loading blog post...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (loading) 
+    return <LoadingSpinner />;
 
   if (error || !currentBlog) {
     return (

@@ -452,9 +452,7 @@ const ProductsView = () => {
     controller.setFilters(filterUpdates);
   }, [controller]);
 
-  /* -------------------------------------------------- */
-  /* Loading / Error states */
-  /* -------------------------------------------------- */
+  // Loading / Error states
   if (isLoading && products.length === 0 && !_isInitialized) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -494,18 +492,16 @@ const ProductsView = () => {
   }
 
   const handleAddProductClick = () => {
-    console.log('➕ Add Product clicked');
-    console.log('🔐 Auth state:', { isAuthenticated, role: user?.role });
-    console.log('📍 Current path:', window.location.pathname);
-    console.log('🎯 Navigating to:', '/admin/products/new');
+    console.log(' Add Product clicked');
+    console.log(' Auth state:', { isAuthenticated, role: user?.role });
+    console.log(' Current path:', window.location.pathname);
+    console.log(' Navigating to:', '/admin/products/new');
     
     // Test navigation
     navigate('/admin/products/new');
   };
 
-  /* -------------------------------------------------- */
-  /* Main View */
-  /* -------------------------------------------------- */
+  //Main View
   return (
     <div className="container-fluid py-4">
       {/* Header with Stats */}
@@ -776,7 +772,7 @@ const ProductsView = () => {
           })}
         </div>
       ) : (
-        /* Table View */
+        //  Table View
         <ProductTable
           products={products}
           onView={(p) => navigate(`/admin/products/${p.id}`)}
@@ -791,7 +787,7 @@ const ProductsView = () => {
         />
       )}
 
-      {/* Pagination */}
+      {/* { Pagination  */}
       {pagination.totalPages > 1 && (
         <nav className="mt-4" aria-label="Product pagination">
           <ul className="pagination justify-content-center">
@@ -915,7 +911,7 @@ const ProductsView = () => {
   );
 };
 
-// Add some CSS for animations
+//CSS for animations
 const styles = `
   .hover-shadow:hover {
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
@@ -937,7 +933,7 @@ const styles = `
   }
 `;
 
-// Add styles to document
+//styles to document
 if (typeof document !== 'undefined') {
   const styleSheet = document.createElement("style");
   styleSheet.textContent = styles;
