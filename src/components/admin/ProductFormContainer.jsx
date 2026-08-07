@@ -7,11 +7,13 @@ const ProductFormContainer = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
 
-  const [product, setProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(!!productId);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const [apiError, setApiError] = useState(null);
+
+  // This will hold the fully prepared data for the form
+  const [formInitialData, setFormInitialData] = useState(null);
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -20,25 +22,99 @@ const ProductFormContainer = () => {
         setIsLoading(true);
         setApiError(null);
 
+        // 1. Fetch categories
         const categoriesData = await AdminProductService.getCategoriesFlat();
         setCategories(categoriesData);
 
+        // 2. If editing, fetch product
         if (productId) {
           const productData = await AdminProductService.getProductById(productId);
-          setProduct(productData);
+          console.log('✅ Product data received:', productData);
+
+          // 3. Build the initial form data object
+          const initialData = buildFormData(productData, categoriesData);
+          setFormInitialData(initialData);
         } else {
-          setProduct(null);
+          // Creating new – set empty initial data
+          setFormInitialData(getEmptyFormData());
         }
       } catch (err) {
-        console.error('Error loading data:', err);
+        console.error('❌ Error loading data:', err);
         setApiError(err.message || 'Failed to load data');
       } finally {
         setIsLoading(false);
       }
     };
+
     loadData();
   }, [productId]);
 
+  // Helper: build full form data from product + categories
+  const buildFormData = (product, categories) => {
+    // Find category hierarchy
+    let selectedParentId = null;
+    let categoryId = product.categoryId || null;
+    let subCategoryId = product.subCategoryId || null;
+
+    const catId = product.categoryId || product.subCategoryId;
+    if (catId && categories.length) {
+      const cat = categories.find(c => c.categoryId === catId);
+      if (cat) {
+        if (cat.parentId) {
+          selectedParentId = cat.parentId;
+          categoryId = cat.parentId;
+          subCategoryId = cat.categoryId;
+        } else {
+          selectedParentId = null;
+          categoryId = cat.categoryId;
+          subCategoryId = null;
+        }
+      }
+    }
+
+    return {
+      name: product.name || '',
+      sku: product.sku || '',
+      price: product.price || '',
+      comparePrice: product.comparePrice || '',
+      quantity: product.quantity || '',
+      description: product.description || '',
+      isOnSale: product.isOnSale || false,
+      salePrice: product.salePrice || '',
+      metaTitle: product.metaTitle || '',
+      metaDescription: product.metaDescription || '',
+      brand: product.brand || '',
+      categoryId: categoryId,
+      subCategoryId: subCategoryId,
+      cost: product.cost || '',
+      weight: product.weight || '',
+      isActive: product.isActive !== undefined ? product.isActive : true,
+      isFeatured: product.isFeatured || false,
+      dimensions: typeof product.dimensions === 'object'
+        ? JSON.stringify(product.dimensions)
+        : product.dimensions || '',
+      saleStart: product.saleStart || null,
+      saleEnd: product.saleEnd || null,
+      thumbnail: product.thumbnail || '',
+      // Extra data for the form (images, specs, tags)
+      images: product.images || [],
+      specifications: product.specifications || { material: '', dimensions: '', warranty: '', color: '' },
+      tags: product.tags || [],
+      selectedParentId: selectedParentId,
+    };
+  };
+
+  const getEmptyFormData = () => ({
+    name: '', sku: '', price: '', comparePrice: '', quantity: '',
+    description: '', isOnSale: false, salePrice: '', metaTitle: '',
+    metaDescription: '', brand: '', categoryId: null, subCategoryId: null,
+    cost: '', weight: '', isActive: true, isFeatured: false,
+    dimensions: '', saleStart: null, saleEnd: null, thumbnail: '',
+    images: [], specifications: { material: '', dimensions: '', warranty: '', color: '' },
+    tags: [], selectedParentId: null,
+  });
+
+  // ---------- Form submission (unchanged) ----------
   const handleSubmit = async (formData) => {
     try {
       setIsSubmitting(true);
@@ -89,7 +165,8 @@ const ProductFormContainer = () => {
     }
   };
 
-  if (productId && !isLoading && !product) {
+  // ---------- Render ----------
+  if (productId && !isLoading && !formInitialData) {
     return (
       <div className="container text-center py-5">
         <h3>Product Not Found</h3>
@@ -105,7 +182,7 @@ const ProductFormContainer = () => {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading product...</span>
+          <span className="visually-hidden">Loading...</span>
         </div>
       </div>
     );
@@ -137,7 +214,7 @@ const ProductFormContainer = () => {
             {productId ? 'Edit Product' : 'Create New Product'}
           </h1>
           <p className="text-muted mb-0">
-            {productId ? `Editing ${product?.name || 'product'}` : 'Add a new product to your store'}
+            {productId ? `Editing ${formInitialData?.name || 'product'}` : 'Add a new product'}
           </p>
         </div>
         {isSubmitting && (
@@ -151,12 +228,12 @@ const ProductFormContainer = () => {
       <div className="card">
         <div className="card-body">
           <ProductForm
-            key={productId || 'new'}   // force remount when productId changes
-            product={product}
+            key={productId || 'new'}
+            initialData={formInitialData}      // ← all data pre‑computed
+            categories={categories}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
             isSubmitting={isSubmitting}
-            categories={categories}
           />
         </div>
       </div>

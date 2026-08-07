@@ -1,129 +1,66 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   XMarkIcon, PhotoIcon, TagIcon, InformationCircleIcon,
   TrashIcon, StarIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconFilled } from '@heroicons/react/24/solid';
 
-const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, categories = [] }) => {
-  // ---------- All form fields as local state ----------
-  const [formData, setFormData] = useState({
-    name: '', sku: '', price: '', comparePrice: '', quantity: '',
-    description: '', isOnSale: false, salePrice: '', metaTitle: '',
-    metaDescription: '', brand: '', categoryId: null, subCategoryId: null,
-    cost: '', weight: '', isActive: true, isFeatured: false,
-    dimensions: '', saleStart: null, saleEnd: null, thumbnail: ''
-  });
+const ProductForm = ({
+  initialData,       // <-- fully prepared object from container
+  categories,
+  onSubmit,
+  onCancel,
+  isSubmitting = false
+}) => {
+  // Use initialData to set state once (no useEffect needed)
+  const [formData, setFormData] = useState(() => ({
+    name: initialData?.name || '',
+    sku: initialData?.sku || '',
+    price: initialData?.price || '',
+    comparePrice: initialData?.comparePrice || '',
+    quantity: initialData?.quantity || '',
+    description: initialData?.description || '',
+    isOnSale: initialData?.isOnSale || false,
+    salePrice: initialData?.salePrice || '',
+    metaTitle: initialData?.metaTitle || '',
+    metaDescription: initialData?.metaDescription || '',
+    brand: initialData?.brand || '',
+    categoryId: initialData?.categoryId || null,
+    subCategoryId: initialData?.subCategoryId || null,
+    cost: initialData?.cost || '',
+    weight: initialData?.weight || '',
+    isActive: initialData?.isActive ?? true,
+    isFeatured: initialData?.isFeatured || false,
+    dimensions: initialData?.dimensions || '',
+    saleStart: initialData?.saleStart || null,
+    saleEnd: initialData?.saleEnd || null,
+    thumbnail: initialData?.thumbnail || '',
+  }));
 
-  const [images, setImages] = useState([]);
-  const [specifications, setSpecifications] = useState({ material: '', dimensions: '', warranty: '', color: '' });
-  const [tags, setTags] = useState([]);
+  const [images, setImages] = useState(initialData?.images || []);
+  const [specifications, setSpecifications] = useState(
+    initialData?.specifications || { material: '', dimensions: '', warranty: '', color: '' }
+  );
+  const [tags, setTags] = useState(initialData?.tags || []);
   const [currentTag, setCurrentTag] = useState('');
   const [activeTab, setActiveTab] = useState('basic');
-  const [thumbnailIndex, setThumbnailIndex] = useState(0);
-  const [selectedParentId, setSelectedParentId] = useState(null);
+  const [thumbnailIndex, setThumbnailIndex] = useState(() => {
+    if (initialData?.thumbnail && initialData?.images?.length) {
+      return initialData.images.findIndex(img => img.url === initialData.thumbnail);
+    }
+    return 0;
+  });
 
-  // Compute parent/child categories
+  // selectedParentId from initialData
+  const [selectedParentId, setSelectedParentId] = useState(initialData?.selectedParentId || null);
+
   const parentCategories = useMemo(() => categories.filter(cat => !cat.parentId), [categories]);
   const childCategories = useMemo(() => {
     if (!selectedParentId) return [];
     return categories.filter(cat => cat.parentId === selectedParentId);
   }, [categories, selectedParentId]);
 
-  // ---------- Populate form when product changes ----------
-  useEffect(() => {
-    if (!product) {
-      // Reset to empty for new product
-      setFormData({
-        name: '', sku: '', price: '', comparePrice: '', quantity: '',
-        description: '', isOnSale: false, salePrice: '', metaTitle: '',
-        metaDescription: '', brand: '', categoryId: null, subCategoryId: null,
-        cost: '', weight: '', isActive: true, isFeatured: false,
-        dimensions: '', saleStart: null, saleEnd: null, thumbnail: ''
-      });
-      setImages([]);
-      setSpecifications({ material: '', dimensions: '', warranty: '', color: '' });
-      setTags([]);
-      setSelectedParentId(null);
-      return;
-    }
-
-    // Populate all fields from product
-    setFormData({
-      name: product.name || '',
-      sku: product.sku || '',
-      price: product.price || '',
-      comparePrice: product.comparePrice || '',
-      quantity: product.quantity || '',
-      description: product.description || '',
-      isOnSale: product.isOnSale || false,
-      salePrice: product.salePrice || '',
-      metaTitle: product.metaTitle || '',
-      metaDescription: product.metaDescription || '',
-      brand: product.brand || '',
-      categoryId: product.categoryId || null,
-      subCategoryId: product.subCategoryId || null,
-      cost: product.cost || '',
-      weight: product.weight || '',
-      isActive: product.isActive !== undefined ? product.isActive : true,
-      isFeatured: product.isFeatured || false,
-      dimensions: typeof product.dimensions === 'object'
-        ? JSON.stringify(product.dimensions)
-        : product.dimensions || '',
-      saleStart: product.saleStart || null,
-      saleEnd: product.saleEnd || null,
-      thumbnail: product.thumbnail || ''
-    });
-
-    setImages(product.images || []);
-    setSpecifications(product.specifications || {});
-    setTags(product.tags || []);
-
-    // Set thumbnail index
-    if (product.thumbnail && product.images?.length) {
-      const idx = product.images.findIndex(img => img.url === product.thumbnail);
-      setThumbnailIndex(idx >= 0 ? idx : 0);
-    }
-
-    // Set category hierarchy
-    const catId = product.categoryId || product.subCategoryId;
-    if (catId && categories.length) {
-      const cat = categories.find(c => c.categoryId === catId);
-      if (cat) {
-        if (cat.parentId) {
-          setSelectedParentId(cat.parentId);
-          setFormData(prev => ({
-            ...prev,
-            categoryId: cat.parentId,
-            subCategoryId: cat.categoryId
-          }));
-        } else {
-          setSelectedParentId(null);
-          setFormData(prev => ({
-            ...prev,
-            categoryId: cat.categoryId,
-            subCategoryId: null
-          }));
-        }
-      } else {
-        setSelectedParentId(null);
-        setFormData(prev => ({
-          ...prev,
-          categoryId: null,
-          subCategoryId: null
-        }));
-      }
-    } else {
-      setSelectedParentId(null);
-      setFormData(prev => ({
-        ...prev,
-        categoryId: null,
-        subCategoryId: null
-      }));
-    }
-  }, [product, categories]);
-
-  // ---------- Handlers ----------
+  // ---------- Handlers (unchanged) ----------
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -150,6 +87,7 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
     }));
   };
 
+  // Image handlers (exactly as before – I'll keep them short)
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     const newImages = [];
@@ -219,7 +157,6 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
     }
   };
 
-  // ---------- Submit ----------
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = {
@@ -247,11 +184,12 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
     onSubmit(payload);
   };
 
-  // ---------- Render (identical to your original JSX, but with `value` and `onChange`) ----------
+  // ---------- JSX – identical to your existing layout, but all fields use formData state ----------
+  // (I'll include the full JSX here for completeness, but it's the same as the previous useState version)
   return (
     <div className="container-xl">
       <form onSubmit={handleSubmit}>
-        {/* Tabs – unchanged */}
+        {/* Tabs */}
         <ul className="nav nav-tabs mb-4">
           {[
             ['basic', 'Basic Info', InformationCircleIcon],
@@ -273,7 +211,7 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
           ))}
         </ul>
 
-        {/* BASIC TAB */}
+        {/* BASIC TAB – all inputs use value={formData.field} onChange={handleChange} */}
         {activeTab === 'basic' && (
           <div className="row g-3">
             <div className="col-md-6">
@@ -660,9 +598,9 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
           </button>
           <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
             {isSubmitting ? (
-              <><span className="spinner-border spinner-border-sm me-2" />{product ? 'Updating...' : 'Creating...'}</>
+              <><span className="spinner-border spinner-border-sm me-2" />{initialData?.name ? 'Updating...' : 'Creating...'}</>
             ) : (
-              product ? 'Update Product' : 'Create Product'
+              initialData?.name ? 'Update Product' : 'Create Product'
             )}
           </button>
         </div>
