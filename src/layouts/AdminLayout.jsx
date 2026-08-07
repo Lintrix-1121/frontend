@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAuthStore from "../stores/shared/useAuthStore";
-import { icon, Path } from "leaflet";
+import { Offcanvas } from "bootstrap"; 
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -9,6 +9,12 @@ export default function AdminLayout() {
   const { user, logout } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Ref to the offcanvas DOM element
+  const offcanvasRef = useRef(null);
+  // Store the offcanvas instance
+  const [offcanvasInstance, setOffcanvasInstance] = useState(null);
+
+  // Navigation items
   const navigation = [
     { name: "Dashboard", path: "/admin", icon: "bi-house" },
     { name: "Products", path: "/admin/products", icon: "bi-box" },
@@ -16,14 +22,45 @@ export default function AdminLayout() {
     { name: "Services", path: "/admin/services", icon: "bi-tools" },
     { name: "Customers", path: "/admin/customers", icon: "bi-people" },
     { name: "Orders", path: "/admin/orders", icon: "bi-cart" },
-    { name: "Projects", path: "/admin/projects", icon: "bi-cpu"},
+    { name: "Projects", path: "/admin/projects", icon: "bi-cpu" },
     { name: "Blog", path: "/admin/blog", icon: "bi-file-post" },
     { name: "Careers", path: "/admin/careers", icon: "bi-person-workspace" },
     { name: "Analytics", path: "/admin/analytics", icon: "bi-bar-chart" },
     { name: "Reports", path: "/admin/reports", icon: "bi-pie-chart" },
     { name: "Settings", path: "/admin/settings", icon: "bi-gear" },
-    
   ];
+
+  // Initialize Bootstrap offcanvas instance when component mounts
+  useEffect(() => {
+    if (offcanvasRef.current) {
+      const instance = new Offcanvas(offcanvasRef.current, {
+        backdrop: true,
+        keyboard: true,
+      });
+      setOffcanvasInstance(instance);
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (offcanvasInstance) {
+        offcanvasInstance.dispose();
+      }
+    };
+  }, []);
+
+  // Close offcanvas programmatically
+  const closeOffcanvas = () => {
+    if (offcanvasInstance) {
+      offcanvasInstance.hide();
+    }
+  };
+
+  // Open offcanvas programmatically
+  const openOffcanvas = () => {
+    if (offcanvasInstance) {
+      offcanvasInstance.show();
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -41,7 +78,6 @@ export default function AdminLayout() {
   return (
     <div className="container-fluid">
       <div className="row">
-
         {/* SIDEBAR (Desktop) */}
         <aside className="col-lg-2 d-none d-lg-flex flex-column bg-white border-end min-vh-100 p-3">
           <h5 className="fw-bold mb-4">Admin Panel</h5>
@@ -77,13 +113,12 @@ export default function AdminLayout() {
 
         {/* MAIN AREA */}
         <div className="col-lg-10 px-0">
-
           {/* TOP BAR */}
           <nav className="navbar navbar-light bg-white border-bottom px-3">
+            {/* Mobile hamburger uses openOffcanvas() */}
             <button
               className="btn btn-outline-secondary d-lg-none"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#mobileSidebar"
+              onClick={openOffcanvas}
             >
               <i className="bi bi-list"></i>
             </button>
@@ -109,11 +144,19 @@ export default function AdminLayout() {
         </div>
       </div>
 
-      {/* MOBILE SIDEBAR */}
-      <div className="offcanvas offcanvas-start" id="mobileSidebar">
+      {/* MOBILE SIDEBAR (Offcanvas) – controlled via ref and Bootstrap API */}
+      <div
+        className="offcanvas offcanvas-start"
+        ref={offcanvasRef}
+        tabIndex="-1"
+      >
         <div className="offcanvas-header">
           <h5 className="offcanvas-title">Admin Panel</h5>
-          <button className="btn-close" data-bs-dismiss="offcanvas"></button>
+          <button
+            className="btn-close"
+            onClick={closeOffcanvas}
+            aria-label="Close"
+          ></button>
         </div>
 
         <div className="offcanvas-body">
@@ -123,7 +166,10 @@ export default function AdminLayout() {
                 key={item.name}
                 to={item.path}
                 className="nav-link text-dark"
-                data-bs-dismiss="offcanvas"
+                onClick={() => {
+                  // Close the offcanvas, then let the Link navigate naturally
+                  closeOffcanvas();
+                }}
               >
                 <i className={`bi ${item.icon} me-2`}></i>
                 {item.name}
@@ -144,5 +190,3 @@ export default function AdminLayout() {
     </div>
   );
 }
-
-
