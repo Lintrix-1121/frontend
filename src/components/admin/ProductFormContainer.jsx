@@ -20,7 +20,6 @@ const ProductFormContainer = () => {
         setIsLoading(true);
         setApiError(null);
 
-        // Fetch categories
         const categoriesData = await AdminProductService.getCategoriesFlat();
         setCategories(categoriesData);
 
@@ -37,7 +36,6 @@ const ProductFormContainer = () => {
         setIsLoading(false);
       }
     };
-
     loadData();
   }, [productId]);
 
@@ -72,17 +70,12 @@ const ProductFormContainer = () => {
     } catch (err) {
       console.error('Error saving product:', err);
       if (err.response) {
-        if (err.response.status === 409) {
-          setApiError('SKU already exists. Please use a different SKU.');
-        } else if (err.response.status === 413) {
-          setApiError('File too large. Maximum file size is 5MB.');
-        } else if (err.response.status === 415) {
-          setApiError('Invalid file type. Only image files are allowed.');
-        } else {
-          setApiError(err.response.data?.message || 'Failed to save product. Please try again.');
-        }
+        if (err.response.status === 409) setApiError('SKU already exists.');
+        else if (err.response.status === 413) setApiError('File too large.');
+        else if (err.response.status === 415) setApiError('Invalid file type.');
+        else setApiError(err.response.data?.message || 'Failed to save product.');
       } else {
-        setApiError(err.message || 'Failed to save product. Please try again.');
+        setApiError(err.message || 'Failed to save product.');
       }
       window.scrollTo(0, 0);
     } finally {
@@ -149,9 +142,7 @@ const ProductFormContainer = () => {
         </div>
         {isSubmitting && (
           <div className="d-flex align-items-center">
-            <div className="spinner-border spinner-border-sm text-primary me-2" role="status">
-              <span className="visually-hidden">Saving...</span>
-            </div>
+            <div className="spinner-border spinner-border-sm text-primary me-2" />
             <span>Saving...</span>
           </div>
         )}
@@ -160,7 +151,7 @@ const ProductFormContainer = () => {
       <div className="card">
         <div className="card-body">
           <ProductForm
-            key={productId || 'new'}   // Force remount when productId changes
+            key={productId || 'new'}   // force remount when productId changes
             product={product}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
