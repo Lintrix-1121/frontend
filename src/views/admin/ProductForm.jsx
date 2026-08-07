@@ -99,12 +99,12 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
       : []
   );
 
-  const [specifications, setSpecifications] = useState({
-    material: '',
-    dimensions: '',
-    warranty: '',
-    color: ''
-  });
+  // const [specifications, setSpecifications] = useState({
+  //   material: '',
+  //   dimensions: '',
+  //   warranty: '',
+  //   color: ''
+  // });
 
   useEffect(() => {
     setSpecifications(
