@@ -2,59 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ProductForm from '../../views/admin/ProductForm';
 import AdminProductService from '../../services/admin/AdminProductService';
-import AdminProductModel from '../../models/admin/AdminProductModel';
 
 const ProductFormContainer = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
-  
+
+  // State
   const [product, setProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(!!productId);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const [apiError, setApiError] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [subCategories, setSubCategories] = useState([]);
 
-  // Fetch product if editing
+  // Load categories (and product if editing)
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
         setApiError(null);
 
-        // Fetch categories
-        const categoriesResponse = await AdminProductService.getCategoriesFlat();
-        setCategories(categoriesResponse);
+        // Fetch flat categories (needed for hierarchical picker)
+        const categoriesData = await AdminProductService.getCategoriesFlat();
+        setCategories(categoriesData);
 
+        // If editing, fetch product
         if (productId) {
-          // Fetch product
           const productData = await AdminProductService.getProductById(productId);
-          
-          // Process product images
-          const processedProduct = {
-            ...productData,
-            images: productData.images || [],
-            thumbnail: productData.thumbnail || null
-          };
-          
-          setProduct(processedProduct);
-          
-          // Fetch sub-categories based on selected category
-          const flatCategories = categoriesResponse;
-
-          if (productData.categoryId) {
-            const subs = flatCategories.filter(categories.parentId === productData.categoryId);
-            // const subs = await AdminProductService.getSubCategories(productData.categoryId);
-            setSubCategories(subs);
-          }
-          else {
-            setSubCategories([]);
-          }
+          setProduct(productData);
         }
       } catch (err) {
         console.error('Error loading data:', err);
-        setApiError(err.message || 'Failed to load data');
+        setApiError(err.message || 'Failed to load data. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -70,20 +49,12 @@ const ProductFormContainer = () => {
       setValidationErrors({});
       setApiError(null);
 
-      // Basic validation
+      // Basic validation (optional – the form also has its own)
       const errors = {};
-      if (!formData.name || formData.name.trim() === '') {
-        errors.name = 'Product name is required';
-      }
-      if (!formData.sku || formData.sku.trim() === '') {
-        errors.sku = 'SKU is required';
-      }
-      if (!formData.price || formData.price <= 0) {
-        errors.price = 'Valid price is required';
-      }
-      if (!formData.quantity || formData.quantity < 0) {
-        errors.quantity = 'Valid quantity is required';
-      }
+      if (!formData.name?.trim()) errors.name = 'Product name is required';
+      if (!formData.sku?.trim()) errors.sku = 'SKU is required';
+      if (!formData.price || formData.price <= 0) errors.price = 'Valid price is required';
+      if (formData.quantity === undefined || formData.quantity < 0) errors.quantity = 'Valid quantity is required';
 
       if (Object.keys(errors).length > 0) {
         setValidationErrors(errors);
@@ -98,33 +69,31 @@ const ProductFormContainer = () => {
         result = await AdminProductService.createProduct(formData);
       }
 
-      // Success handling
+      // Success
       console.log('Product saved successfully:', result);
-      
-      // Show success message
       alert(productId ? 'Product updated successfully!' : 'Product created successfully!');
-      
-      // Redirect to products list
       navigate('/admin/products');
-
     } catch (err) {
       console.error('Error saving product:', err);
-      
-      // Handle specific errors
+
+      // Handle specific error responses
       if (err.response) {
-        if (err.response.status === 409) {
+        const status = err.response.status;
+        const message = err.response.data?.message || err.message;
+        if (status === 409) {
           setApiError('SKU already exists. Please use a different SKU.');
-        } else if (err.response.status === 413) {
+        } else if (status === 413) {
           setApiError('File too large. Maximum file size is 5MB.');
-        } else if (err.response.status === 415) {
+        } else if (status === 415) {
           setApiError('Invalid file type. Only image files are allowed.');
         } else {
-          setApiError(err.response.data?.message || 'Failed to save product. Please try again.');
+          setApiError(message || 'Failed to save product. Please try again.');
         }
       } else {
         setApiError(err.message || 'Failed to save product. Please try again.');
       }
-      
+
+      // Scroll to top to show error
       window.scrollTo(0, 0);
     } finally {
       setIsSubmitting(false);
@@ -137,7 +106,7 @@ const ProductFormContainer = () => {
     }
   };
 
-  // If editing and product doesn't exist
+  // If editing and product doesn't exist (after loading)
   if (productId && !isLoading && !product) {
     return (
       <div className="container text-center py-5">
@@ -166,11 +135,7 @@ const ProductFormContainer = () => {
       {apiError && (
         <div className="alert alert-danger alert-dismissible fade show" role="alert">
           <strong>Error:</strong> {apiError}
-          <button 
-            type="button" 
-            className="btn-close" 
-            onClick={() => setApiError(null)}
-          />
+          <button type="button" className="btn-close" onClick={() => setApiError(null)} />
         </div>
       )}
 
@@ -180,14 +145,12 @@ const ProductFormContainer = () => {
           <strong>Validation Errors:</strong>
           <ul className="mb-0 mt-2">
             {Object.entries(validationErrors).map(([field, error]) => (
-              <li key={field}>{field}: {error}</li>
+              <li key={field}>
+                {field}: {error}
+              </li>
             ))}
           </ul>
-          <button 
-            type="button" 
-            className="btn-close" 
-            onClick={() => setValidationErrors({})}
-          />
+          <button type="button" className="btn-close" onClick={() => setValidationErrors({})} />
         </div>
       )}
 
@@ -198,13 +161,9 @@ const ProductFormContainer = () => {
             {productId ? 'Edit Product' : 'Create New Product'}
           </h1>
           <p className="text-muted mb-0">
-            {productId 
-              ? `Editing ${product?.name || 'product'}` 
-              : 'Add a new product to your store'
-            }
+            {productId ? `Editing ${product?.name || 'product'}` : 'Add a new product to your store'}
           </p>
         </div>
-        
         {isSubmitting && (
           <div className="d-flex align-items-center">
             <div className="spinner-border spinner-border-sm text-primary me-2" role="status">
@@ -215,7 +174,7 @@ const ProductFormContainer = () => {
         )}
       </div>
 
-      {/* Product Form */}
+      {/* Product Form – only categories prop needed */}
       <div className="card">
         <div className="card-body">
           <ProductForm
@@ -223,8 +182,7 @@ const ProductFormContainer = () => {
             onSubmit={handleSubmit}
             onCancel={handleCancel}
             isSubmitting={isSubmitting}
-            categories={categories}
-            subCategories={subCategories}
+            categories={categories}   // flat array with parentId for hierarchy
           />
         </div>
       </div>
@@ -234,13 +192,10 @@ const ProductFormContainer = () => {
         <p className="mb-1">
           <strong>Note:</strong> Images can be uploaded in the Images tab. The first image will be set as thumbnail by default.
         </p>
-        <p className="mb-0">
-          All fields marked with * are required.
-        </p>
+        <p className="mb-0">All fields marked with * are required.</p>
       </div>
     </div>
   );
 };
 
 export default ProductFormContainer;
-
