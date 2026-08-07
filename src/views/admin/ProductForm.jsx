@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { 
   XMarkIcon, 
@@ -6,101 +6,100 @@ import {
   TagIcon, 
   InformationCircleIcon,
   TrashIcon,
-  StarIcon,
-  StarIcon as StarIconSolid
+  StarIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconFilled } from '@heroicons/react/24/solid';
 
-const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, categories = [], subCategories = [] }) => {
+const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, categories = [] }) => {
   const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm({
     defaultValues: product || {}
   });
 
+  // ---------- Category hierarchy state ----------
+  const [selectedParentId, setSelectedParentId] = useState(null);
+
+  // Compute parent categories (those without parentId)
+  const parentCategories = useMemo(() => {
+    return categories.filter(cat => !cat.parentId);
+  }, [categories]);
+
+  // Compute child categories based on selected parent
+  const childCategories = useMemo(() => {
+    if (!selectedParentId) return [];
+    return categories.filter(cat => cat.parentId === selectedParentId);
+  }, [categories, selectedParentId]);
+
+  // Initialize selectedParentId when product changes (editing)
+  useEffect(() => {
+    if (product && categories.length) {
+      // Determine the product's category
+      const catId = product.categoryId || product.subCategoryId;
+      if (catId) {
+        const cat = categories.find(c => c.categoryId === catId);
+        if (cat) {
+          if (cat.parentId) {
+            // This is a child category – set parent to its parentId
+            setSelectedParentId(cat.parentId);
+            // Also set the child selection via setValue later
+            setValue('subCategoryId', cat.categoryId);
+          } else {
+            // This is a top‑level category
+            setSelectedParentId(null);
+            setValue('categoryId', cat.categoryId);
+            setValue('subCategoryId', null);
+          }
+        }
+      } else {
+        // No category set
+        setSelectedParentId(null);
+        setValue('categoryId', null);
+        setValue('subCategoryId', null);
+      }
+    }
+  }, [product, categories, setValue]);
+
+  // ---------- Image state (unchanged) ----------
   const [images, setImages] = useState(product?.images || []);
   const [specifications, setSpecifications] = useState(
-    product?.specifications || {
-      material: '',
-      dimensions: '',
-      warranty: '',
-      color: ''
-    } 
+    product?.specifications || { material: '', dimensions: '', warranty: '', color: '' }
   );
   const [tags, setTags] = useState(product?.tags || []);
   const [currentTag, setCurrentTag] = useState('');
   const [activeTab, setActiveTab] = useState('basic');
-  const [thumbnailIndex, setThumbnailIndex] = useState(product?.thumbnail ? 
-    images.findIndex(img => img.url === product.thumbnail) : 0);
+  const [thumbnailIndex, setThumbnailIndex] = useState(
+    product?.thumbnail ? images.findIndex(img => img.url === product.thumbnail) : 0
+  );
 
   const isOnSale = watch('isOnSale');
-  const watchImages = watch('images');
 
-  // Initialize form with product data
-
-  useEffect(() => {
-    if (product) {
-      console.log('📥 Initializing form with product data:', product);
-      
-      // Create a complete form data object
-      const formData = {
-        name: product.name || '',
-        sku: product.sku || '',
-        price: product.price || '',
-        comparePrice: product.comparePrice || '',
-        quantity: product.quantity || '',
-        description: product.description || '',
-        isOnSale: product.isOnSale || false,
-        salePrice: product.salePrice || '',
-        metaTitle: product.metaTitle || '',
-        metaDescription: product.metaDescription || '',
-        brand: product.brand || '',
-        categoryId: product.categoryId || '',
-        subCategoryId: product.subCategoryId || '',
-        cost: product.cost || '',
-        weight: product.weight || '',
-        isActive: product.isActive !== undefined ? product.isActive : true,
-        isFeatured: product.isFeatured || false,
-        dimensions: product.dimensions || {},
-        saleStart: product.saleStart || null,
-        saleEnd: product.saleEnd || null,
-        thumbnail: product.thumbnail || '',
-      };
-
-      // Reset the form with all values at once
-      reset(formData);
-      
-      // Set non-form state
-      setImages(product.images || []);
-      setSpecifications(product.specifications || {});
-      setTags(product.tags || []);
-      
-      // Set thumbnail index
-      if (product.thumbnail && product.images?.length > 0) {
-        const index = product.images.findIndex(img => {
-          if (typeof img === 'string') return img === product.thumbnail;
-          if (typeof img === 'object' && img.url) return img.url === product.thumbnail;
-          return false;
-        });
-        if (index !== -1) {
-          setThumbnailIndex(index);
-          // Also update images array to mark thumbnail
-          setImages(prev => prev.map((img, i) => ({
-            ...img,
-            isThumbnail: i === index
-          })));
-        }
-      }
+  // ---------- Handlers for category selection ----------
+  const handleParentChange = (e) => {
+    const parentId = e.target.value ? parseInt(e.target.value) : null;
+    setSelectedParentId(parentId);
+    // Reset child selection
+    setValue('subCategoryId', null);
+    // If no parent, clear categoryId; otherwise set categoryId to parent
+    if (!parentId) {
+      setValue('categoryId', null);
+    } else {
+      setValue('categoryId', parentId);
     }
-  }, [product, reset]); // Use reset instead of setValue
+  };
 
+  const handleChildChange = (e) => {
+    const childId = e.target.value ? parseInt(e.target.value) : null;
+    setValue('subCategoryId', childId);
+    // categoryId stays as the parent (already set)
+    // If child is cleared, categoryId remains parent (which is correct)
+  };
 
+  // ---------- Image handlers (unchanged) ----------
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     const newImages = [];
     
     for (const file of files) {
-      // Validate file
       try {
-        // Create object URL for preview
         const previewUrl = URL.createObjectURL(file);
         newImages.push({
           url: previewUrl,
@@ -116,7 +115,6 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
       }
     }
     
-    // If no thumbnail is set and this is the first image, set it as thumbnail
     if (images.length === 0 && newImages.length > 0) {
       newImages[0].isThumbnail = true;
       setThumbnailIndex(0);
@@ -124,19 +122,15 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
     }
     
     setImages([...images, ...newImages]);
-    e.target.value = ''; // Reset file input
+    e.target.value = '';
   };
 
   const removeImage = (index) => {
-    // Revoke object URL to prevent memory leaks
     if (images[index].url.startsWith('blob:')) {
       URL.revokeObjectURL(images[index].url);
     }
-    
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
-    
-    // If we're removing the thumbnail, set a new one
     if (index === thumbnailIndex && newImages.length > 0) {
       setThumbnailIndex(0);
       newImages[0].isThumbnail = true;
@@ -152,7 +146,6 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
       ...img,
       isThumbnail: i === index
     }));
-    
     setImages(newImages);
     setThumbnailIndex(index);
     setValue('thumbnail', newImages[index].url);
@@ -177,13 +170,11 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
     }
   };
 
-
-const onSubmitForm = (data) => {
-  // Check if we have any images with files
-  const hasFilesToUpload = images.some(img => img.file);
-  
-  if (!hasFilesToUpload) {
-    // If no files, submit the data without images
+  // ---------- Form submission ----------
+  const onSubmitForm = (data) => {
+    const hasFilesToUpload = images.some(img => img.file);
+    
+    // Build payload exactly as your backend expects
     const formData = {
       ...data,
       price: parseFloat(data.price) || 0,
@@ -195,7 +186,13 @@ const onSubmitForm = (data) => {
       isActive: data.isActive !== undefined ? data.isActive : true,
       isFeatured: data.isFeatured || false,
       isOnSale: data.isOnSale || false,
-      images: [], // Empty array since no files
+      images: hasFilesToUpload
+        ? images.filter(img => img.file).map(img => ({
+            file: img.file,
+            isThumbnail: img.isThumbnail,
+            url: img.url
+          }))
+        : [],
       specifications: specifications || {},
       tags: tags || [],
       dimensions: data.dimensions || {},
@@ -204,45 +201,15 @@ const onSubmitForm = (data) => {
       metaTitle: data.metaTitle || '',
       metaDescription: data.metaDescription || '',
       brand: data.brand || '',
+      // categoryId and subCategoryId are already set via setValue, but we ensure they're in data
       categoryId: data.categoryId || null,
-      subCategoryId: data.subCategoryId || null
+      subCategoryId: data.subCategoryId || null,
     };
     
     onSubmit(formData);
-    return;
-  }
-  
-  // If we have files, we need to handle them differently
-  onSubmit({
-    ...data,
-    price: parseFloat(data.price) || 0,
-    comparePrice: data.comparePrice ? parseFloat(data.comparePrice) : null,
-    cost: data.cost ? parseFloat(data.cost) : null,
-    quantity: parseInt(data.quantity) || 0,
-    salePrice: data.salePrice ? parseFloat(data.salePrice) : null,
-    weight: data.weight ? parseFloat(data.weight) : null,
-    isActive: data.isActive !== undefined ? data.isActive : true,
-    isFeatured: data.isFeatured || false,
-    isOnSale: data.isOnSale || false,
-    // Send images with files only
-    images: images.filter(img => img.file).map(img => ({
-      file: img.file,
-      isThumbnail: img.isThumbnail,
-      url: img.url // Keep URL for reference
-    })),
-    specifications: specifications || {},
-    tags: tags || [],
-    dimensions: data.dimensions || {},
-    saleStart: data.saleStart || null,
-    saleEnd: data.saleEnd || null,
-    metaTitle: data.metaTitle || '',
-    metaDescription: data.metaDescription || '',
-    brand: data.brand || '',
-    categoryId: data.categoryId || null,
-    subCategoryId: data.subCategoryId || null
-  });
-};
+  };
 
+  // ---------- Render ----------
   return (
     <div className="container-xl">
       <form onSubmit={handleSubmit(onSubmitForm)}>
@@ -268,7 +235,7 @@ const onSubmitForm = (data) => {
           ))}
         </ul>
 
-        {/* BASIC INFO */}
+        {/* ---------- BASIC TAB ---------- */}
         {activeTab === 'basic' && (
           <div className="row g-3">
             <div className="col-md-6">
@@ -428,7 +395,7 @@ const onSubmitForm = (data) => {
           </div>
         )}
 
-        {/* IMAGES */}
+        {/* ---------- IMAGES TAB ---------- */}
         {activeTab === 'images' && (
           <div className="mb-4">
             <div className="mb-3">
@@ -445,7 +412,6 @@ const onSubmitForm = (data) => {
               </small>
             </div>
 
-            {/* Image Gallery */}
             <div className="row g-3">
               {images.length === 0 ? (
                 <div className="col-12 text-center py-5">
@@ -463,7 +429,6 @@ const onSubmitForm = (data) => {
                           alt={`Product ${i + 1}`}
                           style={{ height: '150px', objectFit: 'cover' }}
                         />
-                        {/* Thumbnail Indicator */}
                         {img.isThumbnail && (
                           <div className="position-absolute top-0 start-0 m-2">
                             <span className="badge bg-warning">
@@ -472,7 +437,6 @@ const onSubmitForm = (data) => {
                             </span>
                           </div>
                         )}
-                        {/* Action Buttons */}
                         <div className="position-absolute top-0 end-0 m-2">
                           <button
                             type="button"
@@ -510,12 +474,11 @@ const onSubmitForm = (data) => {
               )}
             </div>
 
-            {/* Hidden field for thumbnail */}
             <input type="hidden" {...register('thumbnail')} />
           </div>
         )}
 
-        {/* SPECIFICATIONS */}
+        {/* ---------- SPECIFICATIONS TAB ---------- */}
         {activeTab === 'specifications' && (
           <>
             <div className="row g-3 mb-3">
@@ -534,7 +497,6 @@ const onSubmitForm = (data) => {
               ))}
             </div>
 
-            {/* Tags Section */}
             <div className="mb-3">
               <label className="form-label">Tags</label>
               <div className="input-group mb-2">
@@ -555,7 +517,6 @@ const onSubmitForm = (data) => {
                 </button>
               </div>
               
-              {/* Tags Display */}
               <div className="d-flex flex-wrap gap-2">
                 {tags.map((tag, index) => (
                   <span key={index} className="badge bg-primary d-flex align-items-center">
@@ -575,7 +536,7 @@ const onSubmitForm = (data) => {
           </>
         )}
 
-        {/* SEO */}
+        {/* ---------- SEO TAB ---------- */}
         {activeTab === 'seo' && (
           <>
             <div className="mb-3">
@@ -602,31 +563,51 @@ const onSubmitForm = (data) => {
           </>
         )}
 
-        {/* ADVANCED */}
+        {/* ---------- ADVANCED TAB ---------- */}
         {activeTab === 'advanced' && (
           <div className="row g-3">
+            {/* Parent Category */}
             <div className="col-md-6">
-              <label className="form-label">Category</label>
-              <select {...register('categoryId')} className="form-select">
-                <option value="">Select Category</option>
-                {categories.map(category => (
-                  <option key={category.categoryId} value={category.categoryId}>
-                    {category.name}
+              <label className="form-label">Parent Category</label>
+              <select
+                className="form-select"
+                value={selectedParentId || ''}
+                onChange={handleParentChange}
+              >
+                <option value="">None (Top-level)</option>
+                {parentCategories.map(cat => (
+                  <option key={cat.categoryId} value={cat.categoryId}>
+                    {cat.name}
                   </option>
                 ))}
               </select>
             </div>
+
+            {/* Sub‑Category */}
             <div className="col-md-6">
-              <label className="form-label">Sub-Category</label>
-              <select {...register('subCategoryId')} className="form-select">
-                <option value="">Select Sub-Category</option>
-                {subCategories.map(sub => (
-                  <option key={sub.categoryId} value={sub.categoryId}>
-                    {sub.name}
+              <label className="form-label">Sub‑Category</label>
+              <select
+                {...register('subCategoryId')}
+                className="form-select"
+                disabled={!selectedParentId || childCategories.length === 0}
+                onChange={handleChildChange}
+              >
+                <option value="">Select Sub‑Category</option>
+                {childCategories.map(cat => (
+                  <option key={cat.categoryId} value={cat.categoryId}>
+                    {cat.name}
                   </option>
                 ))}
               </select>
+              {!selectedParentId && (
+                <small className="text-muted">Select a parent category first</small>
+              )}
             </div>
+
+            {/* Hidden field for categoryId (set by our handlers) */}
+            <input type="hidden" {...register('categoryId')} />
+
+            {/* Rest of advanced fields */}
             <div className="col-md-6">
               <label className="form-label">Weight (grams)</label>
               <input 
@@ -664,7 +645,7 @@ const onSubmitForm = (data) => {
           </div>
         )}
 
-        {/* ACTIONS */}
+        {/* ---------- FORM ACTIONS ---------- */}
         <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
           <button 
             type="button" 
@@ -695,4 +676,3 @@ const onSubmitForm = (data) => {
 };
 
 export default ProductForm;
-

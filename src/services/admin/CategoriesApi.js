@@ -1,5 +1,4 @@
-// api/categoryApi.js
-import api from '../api'; // Import the shared axios instance
+import api from '../api'; //shared axios instance
 
 class CategoryService {
   constructor() {
@@ -24,13 +23,13 @@ class CategoryService {
     if (!forceRefresh && this.cache.has(cacheKey)) {
       const cached = this.cache.get(cacheKey);
       if (Date.now() - cached.timestamp < this.cacheExpiry) {
-        console.log('📦 Returning cached categories');
+        console.log('Returning cached categories');
         return cached.data;
       }
     }
 
     try {
-      console.log('🌐 Fetching categories from API...');
+      console.log('Fetching categories from API...');
       const response = await api.get('/categories');
       
       if (response.data.success) {
@@ -48,11 +47,11 @@ class CategoryService {
       throw new Error(response.data.message || 'Failed to fetch categories');
       
     } catch (error) {
-      console.error('❌ Error fetching categories:', error);
+      console.error('Error fetching categories:', error);
       
       // Return cached data even if expired on error
       if (this.cache.has(cacheKey)) {
-        console.log('⚠️ Using expired cache due to error');
+        console.log('Using expired cache due to error');
         return this.cache.get(cacheKey).data;
       }
       
@@ -74,7 +73,7 @@ class CategoryService {
       throw new Error(response.data.message || 'Category not found');
       
     } catch (error) {
-      console.error(`❌ Error fetching category ${slug}:`, error);
+      console.error(`Error fetching category ${slug}:`, error);
       
       // Handle 404 specifically
       if (error.response?.status === 404) {
@@ -125,21 +124,21 @@ class CategoryService {
         metaDescription: categoryData.metaDescription || ''
       };
 
-      console.log('📝 Creating category:', payload);
+      console.log('Creating category:', payload);
       const response = await api.post('/categories', payload);
       
       if (response.data.success) {
         // Clear categories cache
         this.clearCache('categories_all');
         
-        console.log('✅ Category created successfully');
+        console.log('Category created successfully');
         return response.data.data;
       }
       
       throw new Error(response.data.message || 'Failed to create category');
       
     } catch (error) {
-      console.error('❌ Error creating category:', error);
+      console.error('Error creating category:', error);
       
       // Provide more specific error messages
       if (error.response?.data?.message) {
@@ -167,21 +166,21 @@ class CategoryService {
         }
       }
 
-      console.log(`📝 Updating category ${id}:`, categoryData);
+      console.log(`Updating category ${id}:`, categoryData);
       const response = await api.put(`/categories/${id}`, categoryData);
       
       if (response.data.success) {
         // Clear categories cache
         this.clearCache('categories_all');
         
-        console.log('✅ Category updated successfully');
+        console.log('Category updated successfully');
         return response.data.data;
       }
       
       throw new Error(response.data.message || 'Failed to update category');
       
     } catch (error) {
-      console.error(`❌ Error updating category ${id}:`, error);
+      console.error(`Error updating category ${id}:`, error);
       
       if (error.response?.status === 404) {
         throw new Error('Category not found');
@@ -200,21 +199,21 @@ class CategoryService {
     if (!id) throw new Error('Category ID is required');
     
     try {
-      console.log(`🗑️ Deleting category ${id}...`);
+      console.log(`Deleting category ${id}...`);
       const response = await api.delete(`/categories/${id}`);
       
       if (response.data.success) {
         // Clear categories cache
         this.clearCache('categories_all');
         
-        console.log('✅ Category deleted successfully');
+        console.log('Category deleted successfully');
         return response.data;
       }
       
       throw new Error(response.data.message || 'Failed to delete category');
       
     } catch (error) {
-      console.error(`❌ Error deleting category ${id}:`, error);
+      console.error(`Error deleting category ${id}:`, error);
       
       if (error.response?.status === 404) {
         throw new Error('Category not found');
@@ -245,12 +244,12 @@ class CategoryService {
     } catch (error) {
       // Fallback: fetch all and filter
       if (error.response?.status === 404) {
-        console.log('⚠️ Direct ID endpoint not found, falling back to filter');
+        console.log('Direct ID endpoint not found, falling back to filter');
         const categories = await this.getCategories();
         return categories.find(cat => cat.categoryId === id || cat.id === id) || null;
       }
       
-      console.error(`❌ Error fetching category by ID ${id}:`, error);
+      console.error(`Error fetching category by ID ${id}:`, error);
       throw error;
     }
   }
@@ -309,7 +308,7 @@ class CategoryService {
       const categories = await this.getCategories();
       return categories.filter(cat => !cat.parentId);
     } catch (error) {
-      console.error('❌ Error getting parent categories:', error);
+      console.error('Error getting parent categories:', error);
       throw error;
     }
   }
@@ -322,7 +321,7 @@ class CategoryService {
       const categories = await this.getCategories();
       return categories.filter(cat => cat.parentId === parentId);
     } catch (error) {
-      console.error(`❌ Error getting subcategories for ${parentId}:`, error);
+      console.error(`Error getting subcategories for ${parentId}:`, error);
       throw error;
     }
   }
@@ -330,3 +329,4 @@ class CategoryService {
 
 // Export as singleton instance
 export default new CategoryService();
+
