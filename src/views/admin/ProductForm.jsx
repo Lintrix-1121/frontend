@@ -120,7 +120,7 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
     );
   }, [product]);
       
-  const [tags, setTags] = useState([]);
+  // const [tags, setTags] = useState([]);
   useEffect(() => {
     setTags(Array.isArray(product?.tags) ? product.tags : []);
   }, [product]);
