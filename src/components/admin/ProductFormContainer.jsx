@@ -14,24 +14,25 @@ const ProductFormContainer = () => {
   const [apiError, setApiError] = useState(null);
   const [categories, setCategories] = useState([]);
 
-  // Load categories (and product if editing)
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
         setApiError(null);
 
-        // Fetch flat categories (needed for hierarchy)
+        // Fetch categories
         const categoriesData = await AdminProductService.getCategoriesFlat();
         setCategories(categoriesData);
 
         if (productId) {
           const productData = await AdminProductService.getProductById(productId);
           setProduct(productData);
+        } else {
+          setProduct(null);
         }
       } catch (err) {
         console.error('Error loading data:', err);
-        setApiError(err.message || 'Failed to load data. Please try again.');
+        setApiError(err.message || 'Failed to load data');
       } finally {
         setIsLoading(false);
       }
@@ -40,14 +41,12 @@ const ProductFormContainer = () => {
     loadData();
   }, [productId]);
 
-  // Handle form submission
   const handleSubmit = async (formData) => {
     try {
       setIsSubmitting(true);
       setValidationErrors({});
       setApiError(null);
 
-      // Basic validation
       const errors = {};
       if (!formData.name?.trim()) errors.name = 'Product name is required';
       if (!formData.sku?.trim()) errors.sku = 'SKU is required';
@@ -67,29 +66,24 @@ const ProductFormContainer = () => {
         result = await AdminProductService.createProduct(formData);
       }
 
-      // Success
-      console.log('Product saved successfully:', result);
+      console.log('Product saved:', result);
       alert(productId ? 'Product updated successfully!' : 'Product created successfully!');
       navigate('/admin/products');
     } catch (err) {
       console.error('Error saving product:', err);
-
       if (err.response) {
-        const status = err.response.status;
-        const message = err.response.data?.message || err.message;
-        if (status === 409) {
+        if (err.response.status === 409) {
           setApiError('SKU already exists. Please use a different SKU.');
-        } else if (status === 413) {
+        } else if (err.response.status === 413) {
           setApiError('File too large. Maximum file size is 5MB.');
-        } else if (status === 415) {
+        } else if (err.response.status === 415) {
           setApiError('Invalid file type. Only image files are allowed.');
         } else {
-          setApiError(message || 'Failed to save product. Please try again.');
+          setApiError(err.response.data?.message || 'Failed to save product. Please try again.');
         }
       } else {
         setApiError(err.message || 'Failed to save product. Please try again.');
       }
-
       window.scrollTo(0, 0);
     } finally {
       setIsSubmitting(false);
@@ -126,15 +120,12 @@ const ProductFormContainer = () => {
 
   return (
     <div className="container-fluid py-4">
-      {/* API Error */}
       {apiError && (
         <div className="alert alert-danger alert-dismissible fade show" role="alert">
           <strong>Error:</strong> {apiError}
           <button type="button" className="btn-close" onClick={() => setApiError(null)} />
         </div>
       )}
-
-      {/* Validation Errors */}
       {Object.keys(validationErrors).length > 0 && (
         <div className="alert alert-warning alert-dismissible fade show" role="alert">
           <strong>Validation Errors:</strong>
@@ -147,7 +138,6 @@ const ProductFormContainer = () => {
         </div>
       )}
 
-      {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h1 className="h3 mb-0">
@@ -167,10 +157,10 @@ const ProductFormContainer = () => {
         )}
       </div>
 
-      {/* Product Form – only categories prop needed */}
       <div className="card">
         <div className="card-body">
           <ProductForm
+            key={productId || 'new'}   // Force remount when productId changes
             product={product}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
@@ -180,7 +170,6 @@ const ProductFormContainer = () => {
         </div>
       </div>
 
-      {/* Help Text */}
       <div className="mt-3 text-muted small">
         <p className="mb-1">
           <strong>Note:</strong> Images can be uploaded in the Images tab. The first image will be set as thumbnail by default.
@@ -192,6 +181,12 @@ const ProductFormContainer = () => {
 };
 
 export default ProductFormContainer;
+
+
+
+
+
+
 
 // import React, { useState, useEffect } from 'react';
 // import { useParams, useNavigate } from 'react-router-dom';
