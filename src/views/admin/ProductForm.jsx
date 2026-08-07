@@ -11,80 +11,25 @@ import {
 import { StarIcon as StarIconFilled } from '@heroicons/react/24/solid';
 
 const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, categories = [] }) => {
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors }, 
-    watch, 
-    setValue, 
-    reset 
+
+  console.log('========== PRODUCT FORM ==========');
+  console.log('product prop:', product);
+  console.log('product name:', product?.name);
+  console.log('product sku:', product?.sku);
+  console.log('product price:', product?.price);
+  console.log('product quantity:', product?.quantity);
+  console.log('===================================');
+
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue
   } = useForm({
-    defaultValues: {
-      name: '',
-      sku: '',
-      price: '',
-      comparePrice: '',
-      cost: '',
-      quantity: 0,
-      brand: '',
-      description: '',
-      categoryId: '',
-      subCategoryId: '',
-      isActive: true,
-      isFeatured: false,
-      isOnSale: false,
-      salePrice: '',
-      saleStart: '',
-      saleEnd: '',
-      weight: '',
-      dimensions: '',
-      metaTitle: '',
-      metaDescription: '',
-      thumbnail: ''
-    }
+    defaultValues: product
   });
-
-
-  useEffect(() => {
-    if (!product) return;
-
-    reset({
-      name: product.name || '',
-      sku: product.sku || '',
-      price: product.price ?? '',
-      comparePrice: product.comparePrice ?? '',
-      cost: product.cost ?? '',
-      quantity: product.quantity ?? 0,
-      brand: product.brand || '',
-      description: product.description || '',
-
-      categoryId: product.categoryId ?? '',
-      subCategoryId: product.subCategoryId ?? '',
-
-      isActive: product.isActive ?? true,
-      isFeatured: product.isFeatured ?? false,
-      isOnSale: product.isOnSale ?? false,
-
-      salePrice: product.salePrice ?? '',
-      saleStart: product.saleStart
-        ? formatDateTimeLocal(product.saleStart)
-        : '',
-      saleEnd: product.saleEnd
-        ? formatDateTimeLocal(product.saleEnd)
-        : '',
-
-      weight: product.weight ?? '',
-      dimensions:
-        typeof product.dimensions === 'object'
-          ? JSON.stringify(product.dimensions)
-          : product.dimensions || '',
-
-      metaTitle: product.metaTitle || '',
-      metaDescription: product.metaDescription || '',
-
-      thumbnail: product.thumbnail || ''
-    });
-  }, [product, reset]);
 
   // ---------- Category hierarchy state ----------
   const [selectedParentId, setSelectedParentId] = useState(null);
@@ -130,20 +75,29 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
   }, [product, categories, setValue]);
 
   // ---------- Image state (unchanged) ----------
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState(
+    Array.isArray(product?.images)
+      ? product.images
+      : []
+  );
 
-    useEffect(() => {
-      if (!product) {
-        setImages([]);
-        return;
-      }
+  const [specifications, setSpecifications] = useState(
+    product?.specifications &&
+    typeof product.specifications === 'object'
+      ? product.specifications
+      : {
+          material: '',
+          dimensions: '',
+          warranty: '',
+          color: ''
+        }
+  );
 
-      const productImages = Array.isArray(product.images)
-        ? product.images
-        : [];
-
-      setImages(productImages);
-  }, [product]);
+  const [tags, setTags] = useState(
+    Array.isArray(product?.tags)
+      ? product.tags
+      : []
+  );
 
   const [specifications, setSpecifications] = useState({
     material: '',
@@ -173,30 +127,20 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
   const [currentTag, setCurrentTag] = useState('');
   const [activeTab, setActiveTab] = useState('basic');
 
-  const [thumbnailIndex, setThumbnailIndex] = useState(0);
-
-  useEffect(() => {
-    if (!product) {
-      setThumbnailIndex(0);
-      return;
+  const [thumbnailIndex, setThumbnailIndex] = useState(() => {
+    if (!product?.images?.length) {
+      return 0;
     }
 
-    const productImages = Array.isArray(product.images)
-      ? product.images
-      : [];
-
-    if (productImages.length === 0) {
-      setThumbnailIndex(0);
-      return;
-    }
-
-    const index = productImages.findIndex(
-      img => img.url === product.thumbnail || img.isThumbnail
+    const index = product.images.findIndex(
+      image =>
+        image.url === product.thumbnail ||
+        image.isThumbnail === true
     );
 
-    setThumbnailIndex(index >= 0 ? index : 0);
-  }, [product]);
-  
+    return index >= 0 ? index : 0;
+  });
+
   // const [thumbnailIndex, setThumbnailIndex] = useState(
   //   product?.thumbnail ? images.findIndex(img => img.url === product.thumbnail) : 0
   // );

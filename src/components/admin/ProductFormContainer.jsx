@@ -16,44 +16,147 @@ const ProductFormContainer = () => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
-  // Fetch product if editing
+
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
         setApiError(null);
 
-        // Fetch categories
-        const categoriesResponse = await AdminProductService.getCategoriesFlat();
-        setCategories(categoriesResponse);
+        // Load categories
+        const categoriesResponse =
+          await AdminProductService.getCategoriesFlat();
 
-        if (productId) {
-          // Fetch product
-          const productData = await AdminProductService.getProductById(productId);
-          
-          // Process product images
-          const processedProduct = {
-            ...productData,
-            images: productData.images || [],
-            thumbnail: productData.thumbnail || null
-          };
-          
-          setProduct(processedProduct);
-          
-          // Fetch sub-categories based on selected category
-          const flatCategories = categoriesResponse;
-          const subs = flatCategories.filter(
-            category => category.parentId === productData.categoryId
-          );
+        setCategories(categoriesResponse || []);
 
-          if (productData.categoryId) {
-           
-            setSubCategories(subs);
-          }
-          else {
-            setSubCategories([]);
-          }
+        if (!productId) {
+          setProduct(null);
+          return;
         }
+
+        // Load product
+        const productData =
+          await AdminProductService.getProductById(productId);
+
+        console.log('========== EDIT PRODUCT ==========');
+        console.log('Product returned from service:', productData);
+        console.log('Product name:', productData?.name);
+        console.log('Product SKU:', productData?.sku);
+        console.log('Product price:', productData?.price);
+        console.log('Product quantity:', productData?.quantity);
+        console.log('Product category:', productData?.categoryId);
+        console.log('Product subcategory:', productData?.subCategoryId);
+        console.log('Product images:', productData?.images);
+        console.log('Product specifications:', productData?.specifications);
+        console.log('Product tags:', productData?.tags);
+        console.log('=================================');
+
+        // Convert API/model object into plain form values
+        const normalizedProduct = {
+          id: productData?.id ?? productData?.productId ?? productId,
+
+          name: productData?.name ?? '',
+          sku: productData?.sku ?? '',
+
+          price:
+            productData?.price !== null &&
+            productData?.price !== undefined
+              ? String(productData.price)
+              : '',
+
+          comparePrice:
+            productData?.comparePrice !== null &&
+            productData?.comparePrice !== undefined
+              ? String(productData.comparePrice)
+              : '',
+
+          cost:
+            productData?.cost !== null &&
+            productData?.cost !== undefined
+              ? String(productData.cost)
+              : '',
+
+          quantity:
+            productData?.quantity !== null &&
+            productData?.quantity !== undefined
+              ? String(productData.quantity)
+              : '0',
+
+          brand: productData?.brand ?? '',
+          description: productData?.description ?? '',
+
+          categoryId:
+            productData?.categoryId !== null &&
+            productData?.categoryId !== undefined
+              ? String(productData.categoryId)
+              : '',
+
+          subCategoryId:
+            productData?.subCategoryId !== null &&
+            productData?.subCategoryId !== undefined
+              ? String(productData.subCategoryId)
+              : '',
+
+          isActive: productData?.isActive ?? true,
+          isFeatured: productData?.isFeatured ?? false,
+          isOnSale: productData?.isOnSale ?? false,
+
+          salePrice:
+            productData?.salePrice !== null &&
+            productData?.salePrice !== undefined
+              ? String(productData.salePrice)
+              : '',
+
+          saleStart: formatDateTimeLocal(productData?.saleStart),
+          saleEnd: formatDateTimeLocal(productData?.saleEnd),
+
+          weight:
+            productData?.weight !== null &&
+            productData?.weight !== undefined
+              ? String(productData.weight)
+              : '',
+
+          dimensions:
+            productData?.dimensions &&
+            typeof productData.dimensions === 'object'
+              ? JSON.stringify(productData.dimensions, null, 2)
+              : productData?.dimensions ?? '',
+
+          metaTitle: productData?.metaTitle ?? '',
+          metaDescription: productData?.metaDescription ?? '',
+
+          thumbnail: productData?.thumbnail ?? '',
+
+          images: Array.isArray(productData?.images)
+            ? productData.images
+            : [],
+
+          specifications:
+            productData?.specifications &&
+            typeof productData.specifications === 'object'
+              ? productData.specifications
+              : {},
+
+          tags: Array.isArray(productData?.tags)
+            ? productData.tags
+            : []
+        };
+
+        console.log('========== NORMALIZED PRODUCT ==========');
+        console.log(normalizedProduct);
+        console.log('========================================');
+
+        setProduct(normalizedProduct);
+
+        // Correct subcategory filtering
+        const subs = (categoriesResponse || []).filter(
+          category =>
+            Number(category.parentId) ===
+            Number(productData?.categoryId)
+        );
+
+        setSubCategories(subs);
+
       } catch (err) {
         console.error('Error loading data:', err);
         setApiError(err.message || 'Failed to load data');
@@ -64,6 +167,76 @@ const ProductFormContainer = () => {
 
     loadData();
   }, [productId]);
+
+
+  const formatDateTimeLocal = (date) => {
+    if (!date) return '';
+
+    const d = new Date(date);
+
+    if (Number.isNaN(d.getTime())) {
+      return '';
+    }
+
+    const pad = value => String(value).padStart(2, '0');
+
+    return (
+      `${d.getFullYear()}-` +
+      `${pad(d.getMonth() + 1)}-` +
+      `${pad(d.getDate())}T` +
+      `${pad(d.getHours())}:` +
+      `${pad(d.getMinutes())}`
+    );
+  };
+
+  // Fetch product if editing
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     try {
+  //       setIsLoading(true);
+  //       setApiError(null);
+
+  //       // Fetch categories
+  //       const categoriesResponse = await AdminProductService.getCategoriesFlat();
+  //       setCategories(categoriesResponse);
+
+  //       if (productId) {
+  //         // Fetch product
+  //         const productData = await AdminProductService.getProductById(productId);
+          
+  //         // Process product images
+  //         const processedProduct = {
+  //           ...productData,
+  //           images: productData.images || [],
+  //           thumbnail: productData.thumbnail || null
+  //         };
+          
+  //         setProduct(processedProduct);
+          
+  //         // Fetch sub-categories based on selected category
+  //         const flatCategories = categoriesResponse;
+  //         const subs = flatCategories.filter(
+  //           category => category.parentId === productData.categoryId
+  //         );
+
+  //         if (productData.categoryId) {
+           
+  //           setSubCategories(subs);
+  //         }
+  //         else {
+  //           setSubCategories([]);
+  //         }
+  //       }
+  //     } catch (err) {
+  //       console.error('Error loading data:', err);
+  //       setApiError(err.message || 'Failed to load data');
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   loadData();
+  // }, [productId]);
 
   // Handle form submission
   const handleSubmit = async (formData) => {
@@ -221,6 +394,7 @@ const ProductFormContainer = () => {
       <div className="card">
         <div className="card-body">
           <ProductForm
+            key={product?.id || productId}
             product={product}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
@@ -228,6 +402,14 @@ const ProductFormContainer = () => {
             categories={categories}
             subCategories={subCategories}
           />
+          {/* <ProductForm
+            product={product}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSubmitting={isSubmitting}
+            categories={categories}
+            subCategories={subCategories}
+          /> */}
         </div>
       </div>
 
