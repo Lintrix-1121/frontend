@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
 import { 
   XMarkIcon, 
   PhotoIcon, 
@@ -11,43 +10,55 @@ import {
 import { StarIcon as StarIconFilled } from '@heroicons/react/24/solid';
 
 const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, categories = [] }) => {
-  const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm({
-    defaultValues: product || {}
+  // ---------- Form state (like ProjectForm) ----------
+  const [formData, setFormData] = useState({
+    name: '',
+    sku: '',
+    price: '',
+    comparePrice: '',
+    quantity: '',
+    description: '',
+    isOnSale: false,
+    salePrice: '',
+    metaTitle: '',
+    metaDescription: '',
+    brand: '',
+    categoryId: null,
+    subCategoryId: null,
+    cost: '',
+    weight: '',
+    isActive: true,
+    isFeatured: false,
+    dimensions: '',
+    saleStart: null,
+    saleEnd: null,
+    thumbnail: ''
   });
 
-  // ---------- Category hierarchy state ----------
+  // Other state
+  const [images, setImages] = useState([]);
+  const [specifications, setSpecifications] = useState({ material: '', dimensions: '', warranty: '', color: '' });
+  const [tags, setTags] = useState([]);
+  const [currentTag, setCurrentTag] = useState('');
+  const [activeTab, setActiveTab] = useState('basic');
+  const [thumbnailIndex, setThumbnailIndex] = useState(0);
+
+  // Category hierarchy state
   const [selectedParentId, setSelectedParentId] = useState(null);
 
-  // Compute parent categories (those without parentId)
-  const parentCategories = useMemo(() => {
-    return categories.filter(cat => !cat.parentId);
-  }, [categories]);
-
-  // Compute child categories based on selected parent
+  // Compute parent and child categories
+  const parentCategories = useMemo(() => categories.filter(cat => !cat.parentId), [categories]);
   const childCategories = useMemo(() => {
     if (!selectedParentId) return [];
     return categories.filter(cat => cat.parentId === selectedParentId);
   }, [categories, selectedParentId]);
 
-  // ---------- Image state ----------
-  const [images, setImages] = useState(product?.images || []);
-  const [specifications, setSpecifications] = useState(
-    product?.specifications || { material: '', dimensions: '', warranty: '', color: '' }
-  );
-  const [tags, setTags] = useState(product?.tags || []);
-  const [currentTag, setCurrentTag] = useState('');
-  const [activeTab, setActiveTab] = useState('basic');
-  const [thumbnailIndex, setThumbnailIndex] = useState(0);
-
-  const isOnSale = watch('isOnSale');
-
-  // ---------- SINGLE INITIALISATION EFFECT ----------
+  // ---------- Populate form when product changes ----------
   useEffect(() => {
-    // Only run if we have a product and categories are loaded
-    if (!product || !categories.length) return;
+    if (!product) return;
 
-    // 1. Reset the entire form with product data
-    const formData = {
+    // Fill basic fields
+    setFormData({
       name: product.name || '',
       sku: product.sku || '',
       price: product.price || '',
@@ -65,72 +76,89 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
       weight: product.weight || '',
       isActive: product.isActive !== undefined ? product.isActive : true,
       isFeatured: product.isFeatured || false,
-      dimensions: product.dimensions || {},
+      dimensions: typeof product.dimensions === 'object' ? JSON.stringify(product.dimensions) : product.dimensions || '',
       saleStart: product.saleStart || null,
       saleEnd: product.saleEnd || null,
-      thumbnail: product.thumbnail || '',
-    };
-    reset(formData);
+      thumbnail: product.thumbnail || ''
+    });
 
-    // 2. Set images and other state
+    // Set images
     setImages(product.images || []);
     setSpecifications(product.specifications || {});
     setTags(product.tags || []);
+
+    // Determine thumbnail index
     if (product.thumbnail && product.images?.length) {
       const idx = product.images.findIndex(img => img.url === product.thumbnail);
       setThumbnailIndex(idx >= 0 ? idx : 0);
     }
 
-    // 3. Determine parent/child category relationship
+    // Set category hierarchy
     const catId = product.categoryId || product.subCategoryId;
     if (catId) {
       const cat = categories.find(c => c.categoryId === catId);
       if (cat) {
         if (cat.parentId) {
-          // This is a child category – set parent
           setSelectedParentId(cat.parentId);
-          // Ensure subCategoryId is set to the child
-          setValue('subCategoryId', cat.categoryId);
-          setValue('categoryId', cat.parentId);
+          setFormData(prev => ({
+            ...prev,
+            categoryId: cat.parentId,
+            subCategoryId: cat.categoryId
+          }));
         } else {
-          // This is a parent category
           setSelectedParentId(null);
-          setValue('categoryId', cat.categoryId);
-          setValue('subCategoryId', null);
+          setFormData(prev => ({
+            ...prev,
+            categoryId: cat.categoryId,
+            subCategoryId: null
+          }));
         }
       } else {
-        // Category not found in list – clear both
         setSelectedParentId(null);
-        setValue('categoryId', null);
-        setValue('subCategoryId', null);
+        setFormData(prev => ({
+          ...prev,
+          categoryId: null,
+          subCategoryId: null
+        }));
       }
     } else {
-      // No category set
       setSelectedParentId(null);
-      setValue('categoryId', null);
-      setValue('subCategoryId', null);
+      setFormData(prev => ({
+        ...prev,
+        categoryId: null,
+        subCategoryId: null
+      }));
     }
-  }, [product, categories, reset, setValue]);
+  }, [product, categories]);
 
-  // ---------- Handlers for category selection ----------
+  // ---------- Handlers for form fields ----------
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
   const handleParentChange = (e) => {
     const parentId = e.target.value ? parseInt(e.target.value) : null;
     setSelectedParentId(parentId);
-    setValue('subCategoryId', null);
-    if (!parentId) {
-      setValue('categoryId', null);
-    } else {
-      setValue('categoryId', parentId);
-    }
+    setFormData(prev => ({
+      ...prev,
+      categoryId: parentId,
+      subCategoryId: null
+    }));
   };
 
   const handleChildChange = (e) => {
     const childId = e.target.value ? parseInt(e.target.value) : null;
-    setValue('subCategoryId', childId);
-    // categoryId remains the parent (already set)
+    setFormData(prev => ({
+      ...prev,
+      subCategoryId: childId
+    }));
   };
 
-  // ---------- Image handlers (unchanged from earlier) ----------
+  // ---------- Image handlers ----------
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     const newImages = [];
@@ -153,7 +181,7 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
     if (images.length === 0 && newImages.length > 0) {
       newImages[0].isThumbnail = true;
       setThumbnailIndex(0);
-      setValue('thumbnail', newImages[0].url);
+      setFormData(prev => ({ ...prev, thumbnail: newImages[0].url }));
     }
     setImages([...images, ...newImages]);
     e.target.value = '';
@@ -168,10 +196,10 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
     if (index === thumbnailIndex && newImages.length > 0) {
       setThumbnailIndex(0);
       newImages[0].isThumbnail = true;
-      setValue('thumbnail', newImages[0].url);
+      setFormData(prev => ({ ...prev, thumbnail: newImages[0].url }));
     } else if (newImages.length === 0) {
       setThumbnailIndex(0);
-      setValue('thumbnail', '');
+      setFormData(prev => ({ ...prev, thumbnail: '' }));
     }
   };
 
@@ -182,9 +210,10 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
     }));
     setImages(newImages);
     setThumbnailIndex(index);
-    setValue('thumbnail', newImages[index].url);
+    setFormData(prev => ({ ...prev, thumbnail: newImages[index].url }));
   };
 
+  // ---------- Tags ----------
   const handleAddTag = () => {
     const trimmedTag = currentTag.trim();
     if (trimmedTag && !tags.includes(trimmedTag)) {
@@ -204,45 +233,40 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
     }
   };
 
-  // ---------- Form submission ----------
-  const onSubmitForm = (data) => {
-    const hasFilesToUpload = images.some(img => img.file);
-    const formData = {
-      ...data,
-      price: parseFloat(data.price) || 0,
-      comparePrice: data.comparePrice ? parseFloat(data.comparePrice) : null,
-      cost: data.cost ? parseFloat(data.cost) : null,
-      quantity: parseInt(data.quantity) || 0,
-      salePrice: data.salePrice ? parseFloat(data.salePrice) : null,
-      weight: data.weight ? parseFloat(data.weight) : null,
-      isActive: data.isActive !== undefined ? data.isActive : true,
-      isFeatured: data.isFeatured || false,
-      isOnSale: data.isOnSale || false,
-      images: hasFilesToUpload
-        ? images.filter(img => img.file).map(img => ({
-            file: img.file,
-            isThumbnail: img.isThumbnail,
-            url: img.url
-          }))
-        : [],
-      specifications: specifications || {},
-      tags: tags || [],
-      dimensions: data.dimensions || {},
-      saleStart: data.saleStart || null,
-      saleEnd: data.saleEnd || null,
-      metaTitle: data.metaTitle || '',
-      metaDescription: data.metaDescription || '',
-      brand: data.brand || '',
-      categoryId: data.categoryId || null,
-      subCategoryId: data.subCategoryId || null,
+  // ---------- Submit ----------
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Build final payload
+    const payload = {
+      ...formData,
+      price: parseFloat(formData.price) || 0,
+      comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : null,
+      cost: formData.cost ? parseFloat(formData.cost) : null,
+      quantity: parseInt(formData.quantity) || 0,
+      salePrice: formData.salePrice ? parseFloat(formData.salePrice) : null,
+      weight: formData.weight ? parseFloat(formData.weight) : null,
+      isActive: formData.isActive !== undefined ? formData.isActive : true,
+      isFeatured: formData.isFeatured || false,
+      isOnSale: formData.isOnSale || false,
+      dimensions: formData.dimensions ? JSON.parse(formData.dimensions) : {},
+      saleStart: formData.saleStart || null,
+      saleEnd: formData.saleEnd || null,
+      images: images.filter(img => img.file).map(img => ({
+        file: img.file,
+        isThumbnail: img.isThumbnail,
+        url: img.url
+      })),
+      specifications,
+      tags,
+      // categoryId and subCategoryId already in formData
     };
-    onSubmit(formData);
+    onSubmit(payload);
   };
 
-  // ---------- Render (unchanged) ----------
+  // ---------- Render ----------
   return (
     <div className="container-xl">
-      <form onSubmit={handleSubmit(onSubmitForm)}>
+      <form onSubmit={handleSubmit}>
         {/* Tabs */}
         <ul className="nav nav-tabs mb-4">
           {[
@@ -270,87 +294,152 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
           <div className="row g-3">
             <div className="col-md-6">
               <label className="form-label">Product Name *</label>
-              <input 
-                {...register('name', { required: 'Product name is required' })} 
-                className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="form-control"
                 placeholder="Enter product name"
               />
-              {errors.name && <div className="invalid-feedback">{errors.name.message}</div>}
             </div>
             <div className="col-md-6">
               <label className="form-label">SKU *</label>
-              <input 
-                {...register('sku', { required: 'SKU is required' })} 
-                className={`form-control ${errors.sku ? 'is-invalid' : ''}`}
+              <input
+                type="text"
+                name="sku"
+                value={formData.sku}
+                onChange={handleChange}
+                required
+                className="form-control"
                 placeholder="Enter SKU"
               />
-              {errors.sku && <div className="invalid-feedback">{errors.sku.message}</div>}
             </div>
             <div className="col-md-4">
               <label className="form-label">Price *</label>
               <div className="input-group">
                 <span className="input-group-text">UGX</span>
-                <input 
-                  type="number" step="0.01"
-                  {...register('price', { required: 'Price is required', min: 0 })}
-                  className={`form-control ${errors.price ? 'is-invalid' : ''}`}
+                <input
+                  type="number"
+                  step="0.01"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  required
+                  className="form-control"
                 />
-                {errors.price && <div className="invalid-feedback">{errors.price.message}</div>}
               </div>
             </div>
             <div className="col-md-4">
               <label className="form-label">Compare Price</label>
               <div className="input-group">
                 <span className="input-group-text">UGX</span>
-                <input type="number" step="0.01" {...register('comparePrice')} className="form-control" />
+                <input
+                  type="number"
+                  step="0.01"
+                  name="comparePrice"
+                  value={formData.comparePrice}
+                  onChange={handleChange}
+                  className="form-control"
+                />
               </div>
             </div>
             <div className="col-md-4">
               <label className="form-label">Quantity *</label>
-              <input 
-                type="number" 
-                {...register('quantity', { required: 'Quantity is required', min: 0 })}
-                className={`form-control ${errors.quantity ? 'is-invalid' : ''}`}
+              <input
+                type="number"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                required
+                className="form-control"
               />
-              {errors.quantity && <div className="invalid-feedback">{errors.quantity.message}</div>}
             </div>
             <div className="col-md-6">
               <label className="form-label">Brand</label>
-              <input {...register('brand')} className="form-control" placeholder="Enter brand name" />
+              <input
+                type="text"
+                name="brand"
+                value={formData.brand}
+                onChange={handleChange}
+                className="form-control"
+                placeholder="Enter brand name"
+              />
             </div>
             <div className="col-md-6">
               <label className="form-label">Cost Price</label>
               <div className="input-group">
                 <span className="input-group-text">UGX</span>
-                <input type="number" step="0.01" {...register('cost')} className="form-control" />
+                <input
+                  type="number"
+                  step="0.01"
+                  name="cost"
+                  value={formData.cost}
+                  onChange={handleChange}
+                  className="form-control"
+                />
               </div>
             </div>
             <div className="col-12">
               <label className="form-label">Description</label>
-              <textarea {...register('description')} rows="4" className="form-control" />
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows="4"
+                className="form-control"
+              />
             </div>
             <div className="col-12">
               <div className="form-check form-switch">
-                <input {...register('isOnSale')} type="checkbox" className="form-check-input" role="switch" id="isOnSale" />
+                <input
+                  type="checkbox"
+                  name="isOnSale"
+                  checked={formData.isOnSale}
+                  onChange={handleChange}
+                  className="form-check-input"
+                  role="switch"
+                  id="isOnSale"
+                />
                 <label className="form-check-label" htmlFor="isOnSale">Put product on sale</label>
               </div>
             </div>
-            {isOnSale && (
+            {formData.isOnSale && (
               <>
                 <div className="col-md-4">
                   <label className="form-label">Sale Price</label>
                   <div className="input-group">
                     <span className="input-group-text">UGX</span>
-                    <input type="number" step="0.01" {...register('salePrice')} className="form-control" />
+                    <input
+                      type="number"
+                      step="0.01"
+                      name="salePrice"
+                      value={formData.salePrice}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
                   </div>
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Sale Start Date</label>
-                  <input type="datetime-local" {...register('saleStart')} className="form-control" />
+                  <input
+                    type="datetime-local"
+                    name="saleStart"
+                    value={formData.saleStart}
+                    onChange={handleChange}
+                    className="form-control"
+                  />
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Sale End Date</label>
-                  <input type="datetime-local" {...register('saleEnd')} className="form-control" />
+                  <input
+                    type="datetime-local"
+                    name="saleEnd"
+                    value={formData.saleEnd}
+                    onChange={handleChange}
+                    className="form-control"
+                  />
                 </div>
               </>
             )}
@@ -362,7 +451,13 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
           <div className="mb-4">
             <div className="mb-3">
               <label className="form-label">Upload Images</label>
-              <input type="file" multiple accept="image/*" className="form-control" onChange={handleImageUpload} />
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                className="form-control"
+                onChange={handleImageUpload}
+              />
               <small className="text-muted">Max 5MB each. Allowed: JPG, PNG, GIF, WebP</small>
             </div>
             <div className="row g-3">
@@ -376,18 +471,35 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
                   <div className="col-6 col-md-3" key={i}>
                     <div className="card">
                       <div className="position-relative">
-                        <img src={img.url} className="card-img-top" alt={`Product ${i+1}`} style={{ height: '150px', objectFit: 'cover' }} />
+                        <img
+                          src={img.url}
+                          className="card-img-top"
+                          alt={`Product ${i+1}`}
+                          style={{ height: '150px', objectFit: 'cover' }}
+                        />
                         {img.isThumbnail && (
                           <div className="position-absolute top-0 start-0 m-2">
-                            <span className="badge bg-warning"><StarIconFilled className="me-1" style={{ width: 12 }} /> Thumbnail</span>
+                            <span className="badge bg-warning">
+                              <StarIconFilled className="me-1" style={{ width: 12 }} /> Thumbnail
+                            </span>
                           </div>
                         )}
                         <div className="position-absolute top-0 end-0 m-2">
-                          <button type="button" className="btn btn-danger btn-sm me-1" onClick={() => removeImage(i)} title="Remove">
+                          <button
+                            type="button"
+                            className="btn btn-danger btn-sm me-1"
+                            onClick={() => removeImage(i)}
+                            title="Remove"
+                          >
                             <TrashIcon style={{ width: 14 }} />
                           </button>
                           {!img.isThumbnail && (
-                            <button type="button" className="btn btn-warning btn-sm" onClick={() => setAsThumbnail(i)} title="Set as thumbnail">
+                            <button
+                              type="button"
+                              className="btn btn-warning btn-sm"
+                              onClick={() => setAsThumbnail(i)}
+                              title="Set as thumbnail"
+                            >
                               <StarIcon style={{ width: 14 }} />
                             </button>
                           )}
@@ -402,7 +514,7 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
                 ))
               )}
             </div>
-            <input type="hidden" {...register('thumbnail')} />
+            <input type="hidden" name="thumbnail" value={formData.thumbnail} />
           </div>
         )}
 
@@ -413,21 +525,38 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
               {Object.entries(specifications).map(([key, value]) => (
                 <div className="col-md-6" key={key}>
                   <label className="form-label text-capitalize">{key}</label>
-                  <input className="form-control" value={value} onChange={(e) => setSpecifications({...specifications, [key]: e.target.value})} placeholder={`Enter ${key}`} />
+                  <input
+                    className="form-control"
+                    value={value}
+                    onChange={(e) => setSpecifications({...specifications, [key]: e.target.value})}
+                    placeholder={`Enter ${key}`}
+                  />
                 </div>
               ))}
             </div>
             <div className="mb-3">
               <label className="form-label">Tags</label>
               <div className="input-group mb-2">
-                <input type="text" className="form-control" value={currentTag} onChange={(e) => setCurrentTag(e.target.value)} onKeyPress={handleTagKeyPress} placeholder="Add a tag" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={currentTag}
+                  onChange={(e) => setCurrentTag(e.target.value)}
+                  onKeyPress={handleTagKeyPress}
+                  placeholder="Add a tag"
+                />
                 <button className="btn btn-outline-secondary" type="button" onClick={handleAddTag}>Add</button>
               </div>
               <div className="d-flex flex-wrap gap-2">
                 {tags.map((tag, index) => (
                   <span key={index} className="badge bg-primary d-flex align-items-center">
                     {tag}
-                    <button type="button" className="btn btn-sm p-0 ms-2" onClick={() => removeTag(index)} style={{ color: 'white' }}>
+                    <button
+                      type="button"
+                      className="btn btn-sm p-0 ms-2"
+                      onClick={() => removeTag(index)}
+                      style={{ color: 'white' }}
+                    >
                       <XMarkIcon style={{ width: 12 }} />
                     </button>
                   </span>
@@ -442,12 +571,28 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
           <>
             <div className="mb-3">
               <label className="form-label">Meta Title</label>
-              <input {...register('metaTitle')} className="form-control" placeholder="Meta title" maxLength="200" />
+              <input
+                type="text"
+                name="metaTitle"
+                value={formData.metaTitle}
+                onChange={handleChange}
+                className="form-control"
+                placeholder="Meta title"
+                maxLength="200"
+              />
               <small className="text-muted">50‑60 characters recommended</small>
             </div>
             <div className="mb-3">
               <label className="form-label">Meta Description</label>
-              <textarea {...register('metaDescription')} rows="3" className="form-control" placeholder="Meta description" maxLength="300" />
+              <textarea
+                name="metaDescription"
+                value={formData.metaDescription}
+                onChange={handleChange}
+                rows="3"
+                className="form-control"
+                placeholder="Meta description"
+                maxLength="300"
+              />
               <small className="text-muted">150‑160 characters recommended</small>
             </div>
           </>
@@ -458,7 +603,11 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
           <div className="row g-3">
             <div className="col-md-6">
               <label className="form-label">Parent Category</label>
-              <select className="form-select" value={selectedParentId || ''} onChange={handleParentChange}>
+              <select
+                className="form-select"
+                value={selectedParentId || ''}
+                onChange={handleParentChange}
+              >
                 <option value="">None (Top-level)</option>
                 {parentCategories.map(cat => (
                   <option key={cat.categoryId} value={cat.categoryId}>{cat.name}</option>
@@ -468,10 +617,10 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
             <div className="col-md-6">
               <label className="form-label">Sub‑Category</label>
               <select
-                {...register('subCategoryId')}
                 className="form-select"
-                disabled={!selectedParentId || childCategories.length === 0}
+                value={formData.subCategoryId || ''}
                 onChange={handleChildChange}
+                disabled={!selectedParentId || childCategories.length === 0}
               >
                 <option value="">Select Sub‑Category</option>
                 {childCategories.map(cat => (
@@ -480,20 +629,44 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
               </select>
               {!selectedParentId && <small className="text-muted">Select a parent first</small>}
             </div>
-            <input type="hidden" {...register('categoryId')} />
+            {/* Hidden fields for categoryId */}
+            <input type="hidden" name="categoryId" value={formData.categoryId || ''} />
+
             <div className="col-md-6">
               <label className="form-label">Weight (grams)</label>
-              <input type="number" step="0.01" {...register('weight')} className="form-control" />
+              <input
+                type="number"
+                step="0.01"
+                name="weight"
+                value={formData.weight}
+                onChange={handleChange}
+                className="form-control"
+              />
             </div>
             <div className="col-md-6">
               <div className="form-check form-switch mt-4">
-                <input {...register('isFeatured')} type="checkbox" className="form-check-input" role="switch" id="isFeatured" />
+                <input
+                  type="checkbox"
+                  name="isFeatured"
+                  checked={formData.isFeatured}
+                  onChange={handleChange}
+                  className="form-check-input"
+                  role="switch"
+                  id="isFeatured"
+                />
                 <label className="form-check-label" htmlFor="isFeatured">Featured Product</label>
               </div>
             </div>
             <div className="col-12">
               <label className="form-label">Dimensions (cm)</label>
-              <textarea {...register('dimensions')} rows="2" className="form-control" placeholder='{"length": 10, "width": 5, "height": 2}' />
+              <textarea
+                name="dimensions"
+                value={formData.dimensions}
+                onChange={handleChange}
+                rows="2"
+                className="form-control"
+                placeholder='{"length": 10, "width": 5, "height": 2}'
+              />
               <small className="text-muted">Enter as JSON object</small>
             </div>
           </div>
@@ -501,7 +674,9 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
 
         {/* Form Actions */}
         <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-          <button type="button" onClick={onCancel} className="btn btn-outline-secondary" disabled={isSubmitting}>Cancel</button>
+          <button type="button" onClick={onCancel} className="btn btn-outline-secondary" disabled={isSubmitting}>
+            Cancel
+          </button>
           <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
             {isSubmitting ? (
               <><span className="spinner-border spinner-border-sm me-2" />{product ? 'Updating...' : 'Creating...'}</>
@@ -516,7 +691,6 @@ const ProductForm = ({ product, onSubmit, onCancel, isSubmitting = false, catego
 };
 
 export default ProductForm;
-
 
 // import React, { useState, useEffect } from 'react';
 // import { useNavigate, useParams } from 'react-router-dom';
@@ -1193,3 +1367,5 @@ export default ProductForm;
 // };
 
 // export default ProjectForm;
+
+
