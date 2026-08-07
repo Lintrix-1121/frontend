@@ -118,5 +118,7 @@ class AdminProductModel {
     };
   }
 }
-
 export default AdminProductModel; 
+
+
+

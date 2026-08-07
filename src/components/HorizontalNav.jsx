@@ -22,7 +22,7 @@ export default function HorizontalNav() {
       console.error('Error fetching categories:', error);
     } finally {
       setLoading(false);
-    }
+    } 
   };
 
   // Flatten categories for navigation (show all levels)
@@ -98,42 +98,3 @@ export default function HorizontalNav() {
 }
 
 
-
-// import { NavLink } from "react-router-dom"
-// import "../styles/HorizontalNav.css"
-
-// const categories = [
-//   "All",
-//   "Detection System & Alarm",
-//   "Gas Meters & Flow Meters",
-//   "LPG Vaporizers",
-//   "Valves",
-//   "LPG Tanks & Accessories",
-//   "Regulators",
-//   "Manifolds & Change Over",
-//   "Lint",
-//   "Vortex",
-//   "Quantum"
-// ]
-
-// export default function HorizontalNav() {
-//   return (
-//     <div className="bg-success">
-//       <div className="container position-relative">
-
-//         <div className="nav-scroll d-flex align-items-center py-2">
-//           {categories.map((cat) => (
-//             <NavLink
-//               key={cat}
-//               to={`/category/${cat.toLowerCase().replace(/\s+/g, '-')}`}
-//               className="nav-link text-white px-3"
-//             >
-//               {cat}
-//             </NavLink>
-//           ))}
-//         </div>
-
-//       </div>
-//     </div>
-//   )
-// }

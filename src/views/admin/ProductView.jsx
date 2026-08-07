@@ -752,7 +752,7 @@ const ProductsView = () => {
                       title="Edit"
                     >
                       <PencilIcon width={14} />
-                    </button>
+                    </button> 
                     
                     <button
                       className="btn btn-sm btn-outline-danger"

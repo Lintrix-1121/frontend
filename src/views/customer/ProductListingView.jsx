@@ -1,4 +1,3 @@
-// src/views/ProductListingView.jsx
 import React, { useEffect, useState } from 'react';
 import { Funnel, X } from 'react-bootstrap-icons';
 import useProductStore from '../../stores/customer/useProductStore';
