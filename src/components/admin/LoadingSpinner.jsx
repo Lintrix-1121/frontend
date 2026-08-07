@@ -1,5 +1,5 @@
 import React from "react";
-
+import logo from '../../assets/logo';
 const LoadingSpinner = () => {
   return (
     <>
@@ -79,7 +79,7 @@ const LoadingSpinner = () => {
             }}
           >
             <img
-              src="src/assets/logo/logo.png" 
+              src={logo}
               alt="SynerPhix"
               style={{
                 width: "42px",
