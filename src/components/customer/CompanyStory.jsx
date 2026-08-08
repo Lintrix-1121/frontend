@@ -37,8 +37,8 @@ const CompanyStory = () => {
               <div className="col-6">
                 <div className="card border-0 bg-success bg-opacity-10 rounded-4 h-100">
                   <div className="card-body p-4 text-center">
-                    <h3 className="display-4 fw-bold text-success mb-2">2+</h3>
-                    <p className="text-dark fw-medium mb-0">Years of Excellence</p>
+                    <h3 className="display-4 fw-bold text-success mb-2">17+</h3>
+                    <p className="text-dark fw-medium mb-0">Satsified Clients</p>
                   </div>
                 </div>
               </div>
