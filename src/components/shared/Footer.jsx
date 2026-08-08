@@ -110,21 +110,21 @@ const Footer = () => {
                 <a href="#" className="text-white-50 text-decoration-none d-flex align-items-start">
                   <i className="bi bi-geo-alt me-2 mt-1 text-primary"></i>
                   <span>
-                    Mall, Kawuku - Nakawuka Road<br />
-                    P.O Box _ , Entebbe
+                    Wandegeya along Bombo Road<br />
+                    P.O Box _ , Kampala
                   </span>
                 </a>
               </li>
               <li className="mb-3">
                 <a href="tel:+256702059944" className="text-white-50 text-decoration-none d-flex align-items-center">
                   <i className="bi bi-telephone me-2 text-primary"></i>
-                  +256 786687764
+                  +256 708849489/+256 786687764
                 </a>
               </li>
               <li>
                 <a href="mailto:info@qriscorp.com" className="text-white-50 text-decoration-none d-flex align-items-center">
                   <i className="bi bi-envelope me-2 text-primary"></i>
-                  info@synerphix.com
+                  synerphixtechnologies@gmail.com
                 </a>
               </li>
             </ul>
