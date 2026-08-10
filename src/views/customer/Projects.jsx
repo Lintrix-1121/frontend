@@ -121,7 +121,7 @@ const Projects = () => {
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <Container fluid className="py-4">
+    <Container fluid className="container py-5 min-vh-100">
       {/* Header */}
       <Row className="align-items-center mb-4">
         <Col>
