@@ -406,3 +406,4 @@ class BlogService {
 
 // Export as singleton instance
 export default new BlogService();
+
