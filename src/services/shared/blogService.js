@@ -4,10 +4,9 @@ import { Blog, BlogComment, BlogLike } from '../../models/shared/Blog';
 class BlogService {
   // Create blog
 
-  // In blogService.js, update the createBlog method:
-async createBlog(formData) {
+  async createBlog(formData) {
   try {
-    console.log('📤 [BLOG SERVICE] Creating blog with form data');
+    console.log(' [BLOG SERVICE] Creating blog with form data');
     
     // Validate FormData
     if (!formData || !(formData instanceof FormData)) {
@@ -15,7 +14,7 @@ async createBlog(formData) {
     }
     
     // Check if FormData has content
-    console.log('📋 FormData validation:');
+    console.log(' FormData validation:');
     console.log('FormData size:', formData.size);
     
     let hasRequiredFields = false;
@@ -38,10 +37,10 @@ async createBlog(formData) {
       throw new Error('Content is required');
     }
     
-    console.log('✅ FormData validated successfully');
+    console.log(' FormData validated successfully');
     
     // Send request
-    console.log('🚀 Sending request to /blogs endpoint');
+    console.log(' Sending request to /blogs endpoint');
     const response = await api.post('/blogs', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -49,11 +48,11 @@ async createBlog(formData) {
       timeout: 30000, // 30 second timeout
     });
     
-    console.log('✅ [BLOG SERVICE] Blog created:', response.data);
+    console.log(' [BLOG SERVICE] Blog created:', response.data);
     return new Blog(response.data.data);
     
   } catch (error) {
-    console.error('❌ [BLOG SERVICE] Error creating blog:');
+    console.error(' [BLOG SERVICE] Error creating blog:');
     console.error('  Request URL:', error.config?.url);
     console.error('  Method:', error.config?.method);
     console.error('  Headers:', error.config?.headers);
@@ -66,7 +65,7 @@ async createBlog(formData) {
     
     if (error.response?.data) {
       const apiError = error.response.data;
-      console.log('🔍 API Error object:', apiError);
+      console.log(' API Error object:', apiError);
       
       if (apiError.message) {
         errorMessage = apiError.message;
@@ -104,7 +103,7 @@ async createBlog(formData) {
         search = null
       } = options;
 
-      console.log('📋 [BLOG SERVICE] Fetching blogs with options:', options);
+      console.log(' [BLOG SERVICE] Fetching blogs with options:', options);
 
       const params = {
         status,
@@ -120,7 +119,7 @@ async createBlog(formData) {
 
       const response = await api.get('/blogs', { params });
       
-      console.log('✅ [BLOG SERVICE] Blogs fetched:', response.data.count, 'items');
+      console.log('[BLOG SERVICE] Blogs fetched:', response.data.count, 'items');
       
       return {
         success: true,
@@ -132,7 +131,7 @@ async createBlog(formData) {
       };
       
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error fetching blogs:', {
+      console.error(' [BLOG SERVICE] Error fetching blogs:', {
         url: error.config?.url,
         status: error.response?.status,
         message: error.message
@@ -154,7 +153,7 @@ async createBlog(formData) {
   // Get blog by ID or slug
   async getBlogByIdOrSlug(identifier, includeRelated = true, incrementViews = true) {
     try {
-      console.log('🔍 [BLOG SERVICE] Fetching blog:', identifier);
+      console.log(' [BLOG SERVICE] Fetching blog:', identifier);
       
       const response = await api.get(`/blogs/${identifier}`, {
         params: {
@@ -165,7 +164,7 @@ async createBlog(formData) {
       
       return new Blog(response.data.data);
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error fetching blog:', error);
+      console.error(' [BLOG SERVICE] Error fetching blog:', error);
       
       if (error.response?.status === 404) {
         throw new Error('Blog not found');
@@ -178,7 +177,7 @@ async createBlog(formData) {
   // Update blog
   async updateBlog(id, formData) {
     try {
-      console.log('✏️ [BLOG SERVICE] Updating blog ID:', id);
+      console.log(' [BLOG SERVICE] Updating blog ID:', id);
       const response = await api.put(`/blogs/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -186,7 +185,7 @@ async createBlog(formData) {
       });
       return new Blog(response.data.data);
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error updating blog:', error);
+      console.error(' [BLOG SERVICE] Error updating blog:', error);
       throw error;
     }
   }
@@ -194,11 +193,11 @@ async createBlog(formData) {
   // Delete blog
   async deleteBlog(id) {
     try {
-      console.log('🗑️ [BLOG SERVICE] Deleting blog ID:', id);
+      console.log(' [BLOG SERVICE] Deleting blog ID:', id);
       const response = await api.delete(`/blogs/${id}`);
       return response.data;
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error deleting blog:', error);
+      console.error(' [BLOG SERVICE] Error deleting blog:', error);
       throw error;
     }
   }
@@ -206,11 +205,11 @@ async createBlog(formData) {
   // Increment views
   async incrementViews(blogId) {
     try {
-      console.log('👁️ [BLOG SERVICE] Incrementing views for blog:', blogId);
+      console.log(' [BLOG SERVICE] Incrementing views for blog:', blogId);
       const response = await api.post(`/blogs/${blogId}/views`);
       return response.data;
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error incrementing views:', error);
+      console.error(' [BLOG SERVICE] Error incrementing views:', error);
       throw error;
     }
   }
@@ -218,11 +217,11 @@ async createBlog(formData) {
   // Like blog
   async likeBlog(blogId) {
     try {
-      console.log('❤️ [BLOG SERVICE] Liking blog:', blogId);
+      console.log(' [BLOG SERVICE] Liking blog:', blogId);
       const response = await api.post(`/blogs/${blogId}/like`);
       return response.data;
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error liking blog:', error);
+      console.error(' [BLOG SERVICE] Error liking blog:', error);
       throw error;
     }
   }
@@ -230,11 +229,11 @@ async createBlog(formData) {
   // Share blog
   async shareBlog(blogId) {
     try {
-      console.log('📤 [BLOG SERVICE] Sharing blog:', blogId);
+      console.log(' [BLOG SERVICE] Sharing blog:', blogId);
       const response = await api.post(`/blogs/${blogId}/share`);
       return response.data;
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error sharing blog:', error);
+      console.error(' [BLOG SERVICE] Error sharing blog:', error);
       throw error;
     }
   }
@@ -244,7 +243,7 @@ async createBlog(formData) {
     try {
       const { status = 'published', limit = 10, offset = 0 } = options;
       
-      console.log('👤 [BLOG SERVICE] Fetching blogs by author:', authorId);
+      console.log(' [BLOG SERVICE] Fetching blogs by author:', authorId);
       
       const response = await api.get(`/blogs/author/${authorId}`, {
         params: { status, limit, offset }
@@ -258,7 +257,7 @@ async createBlog(formData) {
         authorId: response.data.authorId || authorId
       };
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error fetching blogs by author:', error);
+      console.error(' [BLOG SERVICE] Error fetching blogs by author:', error);
       throw error;
     }
   }
@@ -266,7 +265,7 @@ async createBlog(formData) {
   // Get featured blogs
   async getFeaturedBlogs(limit = 5, offset = 0) {
     try {
-      console.log('⭐ [BLOG SERVICE] Fetching featured blogs');
+      console.log(' [BLOG SERVICE] Fetching featured blogs');
       
       const response = await api.get('/blogs/featured/all', {
         params: { limit, offset }
@@ -279,7 +278,7 @@ async createBlog(formData) {
         total: response.data.total || 0
       };
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error fetching featured blogs:', error);
+      console.error(' [BLOG SERVICE] Error fetching featured blogs:', error);
       throw error;
     }
   }
@@ -287,7 +286,7 @@ async createBlog(formData) {
   // Search blogs
   async searchBlogs(query, limit = 10, offset = 0) {
     try {
-      console.log('🔍 [BLOG SERVICE] Searching blogs:', query);
+      console.log(' [BLOG SERVICE] Searching blogs:', query);
       
       const response = await api.get('/blogs/search/all', {
         params: { q: query, limit, offset }
@@ -301,7 +300,7 @@ async createBlog(formData) {
         query: response.data.query || query
       };
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error searching blogs:', error);
+      console.error(' [BLOG SERVICE] Error searching blogs:', error);
       throw error;
     }
   }
@@ -310,19 +309,19 @@ async createBlog(formData) {
 
   async getBlogStats() {
     try {
-      console.log('📊 [BLOG SERVICE] Fetching blog statistics');
-      console.log('🌐 [BLOG SERVICE] Making request to /blogs/stats/all');
+      console.log(' [BLOG SERVICE] Fetching blog statistics');
+      console.log(' [BLOG SERVICE] Making request to /blogs/stats/all');
       
       const response = await api.get('/blogs/stats/all');
       
-      console.log('✅ [BLOG SERVICE] Stats response:', {
+      console.log(' [BLOG SERVICE] Stats response:', {
         status: response.status,
         data: response.data
       });
       
       return response.data;
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Error fetching blog statistics:', {
+      console.error(' [BLOG SERVICE] Error fetching blog statistics:', {
         url: error.config?.url,
         status: error.response?.status,
         data: error.response?.data,
@@ -331,40 +330,29 @@ async createBlog(formData) {
       
       // Try alternative endpoints
       try {
-        console.log('🔄 [BLOG SERVICE] Trying alternative endpoint: /api/blogs/stats');
+        console.log(' [BLOG SERVICE] Trying alternative endpoint: /api/blogs/stats');
         const altResponse = await api.get('/api/blogs/stats');
         return altResponse.data;
       } catch (altError) {
-        console.error('❌ [BLOG SERVICE] Alternative endpoint also failed:', altError);
+        console.error(' [BLOG SERVICE] Alternative endpoint also failed:', altError);
         throw error;
       }
     }
   }
-  // Get blog statistics
-  // async getBlogStats() {
-  //   try {
-  //     console.log('📊 [BLOG SERVICE] Fetching blog statistics');
-  //     const response = await api.get('/blogs/stats/all');
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error('❌ [BLOG SERVICE] Error fetching blog statistics:', error);
-  //     throw error;
-  //   }
-  // }
 
   // Health check
   async healthCheck() {
     try {
-      console.log('🏥 [BLOG SERVICE] Checking blog health');
+      console.log(' [BLOG SERVICE] Checking blog health');
       const response = await api.get('/blogs/health/check');
       return response.data;
     } catch (error) {
-      console.error('❌ [BLOG SERVICE] Blog health check failed:', error);
+      console.error(' [BLOG SERVICE] Blog health check failed:', error);
       throw error;
     }
   }
 
-  // Get published blogs (convenience method)
+  // Get published blogs 
   async getPublishedBlogs(limit = 10, offset = 0) {
     return this.getAllBlogs({
       status: 'published',
@@ -373,7 +361,7 @@ async createBlog(formData) {
     });
   }
 
-  // Get draft blogs (convenience method)
+  // Get draft blogs 
   async getDraftBlogs(limit = 10, offset = 0) {
     return this.getAllBlogs({
       status: 'draft',

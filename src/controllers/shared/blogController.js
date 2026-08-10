@@ -5,31 +5,31 @@ class BlogController {
   // Create blog
   async createBlog(blogData, featuredImageFile) {
     try {
-      console.log('🎯 [BLOG CONTROLLER] createBlog called');
+      console.log(' [BLOG CONTROLLER] createBlog called');
       
       // Check what type of data we received
-      console.log('📦 [BLOG CONTROLLER] Input type:', typeof blogData);
-      console.log('📦 [BLOG CONTROLLER] Is FormData?', blogData instanceof FormData);
+      console.log(' [BLOG CONTROLLER] Input type:', typeof blogData);
+      console.log(' [BLOG CONTROLLER] Is FormData?', blogData instanceof FormData);
       
       if (blogData instanceof FormData) {
-        console.log('📋 [BLOG CONTROLLER] Processing FormData');
-        console.log('🔍 FormData contents:');
+        console.log(' [BLOG CONTROLLER] Processing FormData');
+        console.log(' FormData contents:');
         for (let [key, value] of blogData.entries()) {
           console.log(`  ${key}:`, value instanceof File ? `File: ${value.name}` : value);
         }
       } else {
-        console.log('📦 [BLOG CONTROLLER] blogData:', blogData);
-        console.log('🖼️ [BLOG CONTROLLER] featuredImageFile:', featuredImageFile);
+        console.log(' [BLOG CONTROLLER] blogData:', blogData);
+        console.log(' [BLOG CONTROLLER] featuredImageFile:', featuredImageFile);
       }
       
       // Make sure we return a proper object
       const result = await blogService.createBlog(blogData);
       
-      console.log('📨 [BLOG CONTROLLER] blogService returned:', result);
+      console.log(' [BLOG CONTROLLER] blogService returned:', result);
       
       // Check if blogService returned anything
       if (!result) {
-        console.error('❌ [BLOG CONTROLLER] blogService returned undefined!');
+        console.error(' [BLOG CONTROLLER] blogService returned undefined!');
         return {
           success: false,
           error: 'Service layer did not return a response',
@@ -45,15 +45,15 @@ class BlogController {
       };
       
     } catch (error) {
-      console.error('❌ [BLOG CONTROLLER] Error in createBlog:', error);
-      console.error('❌ Error stack:', error.stack);
+      console.error(' [BLOG CONTROLLER] Error in createBlog:', error);
+      console.error(' Error stack:', error.stack);
       
       // Extract error message
       let errorMessage = 'Failed to create blog';
       
       if (error.response?.data) {
         const apiError = error.response.data;
-        console.error('🔍 API Error details:', apiError);
+        console.error(' API Error details:', apiError);
         errorMessage = apiError.message || apiError.error || error.message;
       } else if (error.message) {
         errorMessage = error.message;
@@ -253,10 +253,10 @@ class BlogController {
 
   async getBlogStatistics() {
     try {
-      console.log('📊 [BLOG CONTROLLER] Getting blog statistics');
+      console.log(' [BLOG CONTROLLER] Getting blog statistics');
       const result = await blogService.getBlogStats();
       
-      console.log('📈 [BLOG CONTROLLER] Service returned:', {
+      console.log(' [BLOG CONTROLLER] Service returned:', {
         success: !!result,
         data: result
       });
@@ -274,7 +274,7 @@ class BlogController {
           data: { data: result } 
         };
       } else {
-        console.warn('⚠️ [BLOG CONTROLLER] No data returned from service');
+        console.warn(' [BLOG CONTROLLER] No data returned from service');
         return { 
           success: false, 
           error: 'No statistics data available',
@@ -283,7 +283,7 @@ class BlogController {
       }
       
     } catch (error) {
-      console.error('❌ [BLOG CONTROLLER] Error in getBlogStatistics:', error);
+      console.error(' [BLOG CONTROLLER] Error in getBlogStatistics:', error);
       return { 
         success: false, 
         error: error.message || 'Failed to get blog statistics',
@@ -291,21 +291,6 @@ class BlogController {
       };
     }
   }
-
-  // Get blog statistics
-  // async getBlogStatistics() {
-  //   try {
-  //     const result = await blogService.getBlogStats();
-  //     return { success: true, data: result };
-  //   } catch (error) {
-  //     return { 
-  //       success: false, 
-  //       error: error.message || 'Failed to get blog statistics',
-  //       data: null
-  //     };
-  //   }
-  // }
-
   // Health check
   async healthCheck() {
     try {

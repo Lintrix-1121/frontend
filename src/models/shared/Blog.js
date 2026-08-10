@@ -51,61 +51,38 @@ export class Blog {
 
 
   toFormData(featuredImageFile = null) {
-  const formData = new FormData();
-  
-  // Add all required fields
-  formData.append('title', this.title || '');
-  formData.append('slug', this.slug || '');
-  formData.append('excerpt', this.excerpt || '');
-  formData.append('content', this.content || '');
-  formData.append('authorId', this.authorId?.toString() || '');
-  formData.append('metaTitle', this.metaTitle || '');
-  formData.append('metaDescription', this.metaDescription || '');
-  formData.append('metaKeywords', this.metaKeywords || '');
-  formData.append('readingTime', this.readingTime?.toString() || '0');
-  formData.append('status', this.status || 'draft');
-  formData.append('isFeatured', this.isFeatured?.toString() || 'false');
-  formData.append('isPublished', this.isPublished?.toString() || 'false');
-  
-  // Add featured image if exists
-  if (featuredImageFile) {
-    console.log('Adding featured image to FormData:', featuredImageFile.name);
-    formData.append('featuredImage', featuredImageFile, featuredImageFile.name);
-  } else {
-    console.log('No featured image to add');
-  }
-  
-  // Debug: Log FormData contents
-  console.log('FormData created with fields:');
-  for (let [key, value] of formData.entries()) {
-    console.log(`  ${key}:`, value instanceof File ? `File: ${value.name} (${value.type})` : value);
-  }
-  
-  return formData;
-}
-
-  // toFormData(featuredImageFile = null) {
-  //   const formData = new FormData();
-  //   formData.append('title', this.title);
-  //   if (this.slug) formData.append('slug', this.slug);
-  //   if (this.excerpt) formData.append('excerpt', this.excerpt);
-  //   formData.append('content', this.content);
-  //   formData.append('authorId', this.authorId.toString());
-  //   if (this.metaTitle) formData.append('metaTitle', this.metaTitle);
-  //   if (this.metaDescription) formData.append('metaDescription', this.metaDescription);
-  //   if (this.metaKeywords) formData.append('metaKeywords', this.metaKeywords);
-  //   if (this.readingTime) formData.append('readingTime', this.readingTime.toString());
-  //   formData.append('status', this.status);
-  //   formData.append('isFeatured', this.isFeatured.toString());
-  //   formData.append('isPublished', this.isPublished.toString());
+    const formData = new FormData();
     
-  //   if (featuredImageFile) {
-  //     formData.append('featuredImage', featuredImageFile);
-  //   }
+    // Add all required fields
+    formData.append('title', this.title || '');
+    formData.append('slug', this.slug || '');
+    formData.append('excerpt', this.excerpt || '');
+    formData.append('content', this.content || '');
+    formData.append('authorId', this.authorId?.toString() || '');
+    formData.append('metaTitle', this.metaTitle || '');
+    formData.append('metaDescription', this.metaDescription || '');
+    formData.append('metaKeywords', this.metaKeywords || '');
+    formData.append('readingTime', this.readingTime?.toString() || '0');
+    formData.append('status', this.status || 'draft');
+    formData.append('isFeatured', this.isFeatured?.toString() || 'false');
+    formData.append('isPublished', this.isPublished?.toString() || 'false');
     
-  //   return formData;
-  // }
-
+    // Add featured image if exists
+    if (featuredImageFile) {
+      console.log('Adding featured image to FormData:', featuredImageFile.name);
+      formData.append('featuredImage', featuredImageFile, featuredImageFile.name);
+    } else {
+      console.log('No featured image to add');
+    }
+    
+    // Debug: Log FormData contents
+    console.log('FormData created with fields:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`  ${key}:`, value instanceof File ? `File: ${value.name} (${value.type})` : value);
+    }
+    
+    return formData;
+  }
   // Helper methods
   isPublishedStatus() {
     return this.status === 'published';
