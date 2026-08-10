@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Container, Form, Row, Col, Button, Card, Badge, Alert, Spinner } from 'react-bootstrap';
-import { useProjectStore } from '../../stores/shared/projectStore';
+import useProjectStore from '../../stores/shared/projectStore';
 import toast from 'react-hot-toast';
 
 const ProjectForm = () => {

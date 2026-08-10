@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Table, Button, Badge, Form, Pagination, Modal } from 'react-bootstrap';
-import { useProjectStore } from '../../stores/shared/projectStore';
+import useProjectStore from '../../stores/shared/projectStore';
 import LoadingSpinner from '../../components/admin/LoadingSpinner';
 import ErrorMessage from '../../components/projects/ErrorMessage';
 import toast from 'react-hot-toast';

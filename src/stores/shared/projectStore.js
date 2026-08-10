@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import projectService from '../../services/shared/projectService';
 
 const useProjectStore = create((set, get) => ({
-  // ---------- State ----------
+  // State 
   projects: [],
   currentProject: null,
   featuredProjects: [],
@@ -24,11 +24,11 @@ const useProjectStore = create((set, get) => ({
     search: null,
   },
 
-  // ---------- Actions ----------
+  //Actions 
   setLoading: loading => set({ loading }),
   setError: error => set({ error }),
 
-  // ---- Fetch all projects (with filters/pagination) ----
+  //Fetch all projects (with filters/pagination)
   fetchProjects: async (params = {}) => {
     const store = get();
     set({ loading: true, error: null });
@@ -53,7 +53,7 @@ const useProjectStore = create((set, get) => ({
     }
   },
 
-  // ---- Fetch single project ----
+  //Fetch single project
   fetchProject: async identifier => {
     set({ loading: true, error: null });
     const result = await projectService.getProject(identifier);
@@ -65,7 +65,7 @@ const useProjectStore = create((set, get) => ({
     return result;
   },
 
-  // ---- Fetch featured projects ----
+  // Fetch featured projects
   fetchFeaturedProjects: async (limit = 6) => {
     set({ loading: true, error: null });
     const result = await projectService.getFeaturedProjects(limit);
@@ -76,7 +76,7 @@ const useProjectStore = create((set, get) => ({
     }
   },
 
-  // ---- Fetch projects by category ----
+  // Fetch projects by category 
   fetchProjectsByCategory: async (category, page = 1, limit = 10) => {
     set({ loading: true, error: null });
     const result = await projectService.getProjectsByCategory(category, page, limit);
@@ -96,7 +96,7 @@ const useProjectStore = create((set, get) => ({
     }
   },
 
-  // ---- Fetch projects by technology ----
+  // Fetch projects by technology
   fetchProjectsByTechnology: async (technology, limit = 10) => {
     set({ loading: true, error: null });
     const result = await projectService.getProjectsByTechnology(technology, limit);
@@ -107,7 +107,7 @@ const useProjectStore = create((set, get) => ({
     }
   },
 
-  // ---- Search projects ----
+  // Search projects 
   searchProjects: async (query, filters = {}, page = 1, limit = 10) => {
     set({ loading: true, error: null });
     const result = await projectService.searchProjects(query, filters, page, limit);
@@ -127,7 +127,7 @@ const useProjectStore = create((set, get) => ({
     }
   },
 
-  // ---- Fetch project statistics ----
+  // Fetch project statistics 
   fetchProjectStats: async () => {
     set({ loading: true, error: null });
     const result = await projectService.getProjectStats();
@@ -138,7 +138,7 @@ const useProjectStore = create((set, get) => ({
     }
   },
 
-  // ---- Fetch related projects ----
+  // Fetch related projects
   fetchRelatedProjects: async (projectId, limit = 4) => {
     set({ loading: true, error: null });
     const result = await projectService.getRelatedProjects(projectId, limit);
@@ -149,7 +149,7 @@ const useProjectStore = create((set, get) => ({
     }
   },
 
-  // ---- Fetch project timeline ----
+  // Fetch project timeline 
   fetchProjectTimeline: async projectId => {
     set({ loading: true, error: null });
     const result = await projectService.getProjectTimeline(projectId);
@@ -160,7 +160,7 @@ const useProjectStore = create((set, get) => ({
     }
   },
 
-  // ---- CRUD operations ----
+  // CRUD operations
   createProject: async (projectData, mediaFiles) => {
     set({ loading: true, error: null });
     const result = await projectService.createProject(projectData, mediaFiles);
@@ -200,7 +200,7 @@ const useProjectStore = create((set, get) => ({
     return result;
   },
 
-  // ---- Media operations ----
+  // Media operations 
   uploadProjectMedia: async (projectId, files, mediaData = {}) => {
     set({ loading: true, error: null });
     const result = await projectService.uploadProjectMedia(projectId, files, mediaData);
@@ -232,7 +232,7 @@ const useProjectStore = create((set, get) => ({
     return result;
   },
 
-  // ---- Clone & Export ----
+  //Clone & Export
   cloneProject: async (projectId, newTitle, createdBy) => {
     set({ loading: true, error: null });
     const result = await projectService.cloneProject(projectId, newTitle, createdBy);
@@ -252,7 +252,7 @@ const useProjectStore = create((set, get) => ({
     return result;
   },
 
-  // ---- Filter & pagination controls ----
+  //Filter & pagination controls
   setFilters: filters => {
     set({ filters: { ...get().filters, ...filters } });
     get().fetchProjects();
@@ -263,7 +263,7 @@ const useProjectStore = create((set, get) => ({
     get().fetchProjects();
   },
 
-  // ---- Reset / clear ----
+  //Reset / clear
   clearCurrentProject: () => set({ currentProject: null }),
   clearRelatedProjects: () => set({ relatedProjects: [] }),
   clearTimeline: () => set({ timelineData: null }),
