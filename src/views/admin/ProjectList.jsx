@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import useProjectStore from '../../stores/shared/projectStore';
+import { Container, Row, Col, Card, Table, Button, Badge, Form, Pagination, Modal } from 'react-bootstrap';
+import { useProjectStore } from '../../stores/shared/projectStore';
 import LoadingSpinner from '../../components/admin/LoadingSpinner';
 import ErrorMessage from '../../components/projects/ErrorMessage';
-import Pagination from '../../components/admin/Pagination';
+import toast from 'react-hot-toast';
 
 const ProjectList = () => {
-  const { projects, loading, error, pagination, fetchProjects, deleteProject, setPage } = useProjectStore();
+  const { projects, loading, error, pagination, fetchProjects, deleteProject, setPage, setFilters } = useProjectStore();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [deleteType, setDeleteType] = useState('soft');
@@ -25,201 +26,215 @@ const ProjectList = () => {
       await deleteProject(selectedProject.projectId, deleteType === 'permanent');
       setShowDeleteModal(false);
       setSelectedProject(null);
+      toast.success('Project deleted');
     }
   };
 
-  const getStatusBadgeClass = (status) => {
-    const classes = {
-      'planned': 'bg-blue-100 text-blue-800',
-      'in-progress': 'bg-yellow-100 text-yellow-800',
-      'completed': 'bg-green-100 text-green-800',
-      'on-hold': 'bg-orange-100 text-orange-800',
-      'cancelled': 'bg-red-100 text-red-800',
-      'maintenance': 'bg-purple-100 text-purple-800'
-    };
-    return classes[status] || 'bg-gray-100 text-gray-800';
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ [name]: value || null });
   };
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Projects</h1>
-        <Link
-          to="/admin/projects/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          + New Project
-        </Link>
-      </div>
+    <Container fluid className="py-4">
+      <Row className="align-items-center mb-4">
+        <Col>
+          <h1 className="h2 mb-0">Projects</h1>
+        </Col>
+        <Col xs="auto">
+          <Button as={Link} to="/admin/projects/new" variant="primary">+ New Project</Button>
+        </Col>
+      </Row>
 
-      {/* Projects Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
+      {/* Filters */}
+      <Card className="mb-4">
+        <Card.Body>
+          <Row className="g-3">
+            <Col md={3}>
+              <Form.Group>
+                <Form.Label>Category</Form.Label>
+                <Form.Select name="category" onChange={handleFilterChange}>
+                  <option value="">All</option>
+                  <option value="IoT">IoT</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Mobile apps">Mobile Apps</option>
+                  <option value="Web apps">Web Apps</option>
+                  <option value="Installations">Installations</option>
+                  <option value="Networking">Networking</option>
+                  <option value="Embedded Systems">Embedded Systems</option>
+                  <option value="Software Development">Software Development</option>
+                  <option value="ICT Infrastructure">ICT Infrastructure</option>
+                  <option value="Security Systems">Security Systems</option>
+                  <option value="Cloud Computing">Cloud Computing</option>
+                  <option value="AI/ML">AI/ML</option>
+                  <option value="Blockchain">Blockchain</option>
+                  <option value="Robotics">Robotics</option>
+                  <option value="Telecommunications">Telecommunications</option>
+                  <option value="Data Center">Data Center</option>
+                  <option value="IT Consulting">IT Consulting</option>
+                  <option value="Hardware Design">Hardware Design</option>
+                  <option value="Firmware Development">Firmware Development</option>
+                  <option value="System Integration">System Integration</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              <Form.Group>
+                <Form.Label>Status</Form.Label>
+                <Form.Select name="status" onChange={handleFilterChange}>
+                  <option value="">All</option>
+                  <option value="planned">Planned</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="on-hold">On Hold</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="maintenance">Maintenance</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              <Form.Group>
+                <Form.Label>Priority</Form.Label>
+                <Form.Select name="priority" onChange={handleFilterChange}>
+                  <option value="">All</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              <Form.Group>
+                <Form.Label>Featured</Form.Label>
+                <Form.Select name="featured" onChange={handleFilterChange}>
+                  <option value="">All</option>
+                  <option value="true">Featured</option>
+                  <option value="false">Not Featured</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      {/* Table */}
+      <Card>
+        <Card.Body className="p-0">
+          <Table responsive hover striped className="mb-0">
+            <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Project
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Priority
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Views
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th>Project</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Views</th>
+                <th>Created</th>
+                <th>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody>
               {projects.map(project => (
-                <tr key={project.projectId} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-gray-200 rounded-lg mr-3 flex items-center justify-center">
-                        {project.featuredImage ? (
-                          <img
-                            src={project.featuredImage}
-                            alt={project.title}
-                            className="w-10 h-10 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <span className="text-xl">📁</span>
-                        )}
-                      </div>
+                <tr key={project.projectId}>
+                  <td>
+                    <div className="d-flex align-items-center">
+                      {project.featuredImage ? (
+                        <img src={project.featuredImage} alt={project.title} width="40" height="40" className="rounded me-2" />
+                      ) : (
+                        <div className="bg-light rounded me-2" style={{ width: 40, height: 40 }}>📁</div>
+                      )}
                       <div>
-                        <p className="font-medium">{project.title}</p>
-                        {project.clientName && (
-                          <p className="text-sm text-gray-500">{project.clientName}</p>
-                        )}
+                        <div className="fw-bold">{project.title}</div>
+                        <small className="text-muted">{project.clientName}</small>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm">{project.category}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadgeClass(project.status)}`}>
+                  <td>{project.category}</td>
+                  <td>
+                    <Badge bg={
+                      project.status === 'completed' ? 'success' :
+                      project.status === 'in-progress' ? 'primary' :
+                      project.status === 'planned' ? 'secondary' :
+                      project.status === 'on-hold' ? 'warning' :
+                      project.status === 'cancelled' ? 'danger' : 'info'
+                    }>
                       {project.status}
-                    </span>
+                    </Badge>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      project.priority === 'high' || project.priority === 'critical'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
+                  <td>
+                    <Badge bg={
+                      project.priority === 'critical' ? 'danger' :
+                      project.priority === 'high' ? 'warning' :
+                      project.priority === 'medium' ? 'info' : 'secondary'
+                    }>
                       {project.priority}
-                    </span>
+                    </Badge>
                   </td>
-                  <td className="px-6 py-4 text-sm">{project.views || 0}</td>
-                  <td className="px-6 py-4 text-sm">
-                    {new Date(project.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex space-x-2">
-                      <Link
-                        to={`/admin/projects/edit/${project.projectId}`}
-                        className="text-blue-600 hover:text-blue-800"
-                        title="Edit"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </Link>
-                      <button
-                        onClick={() => handleDeleteClick(project)}
-                        className="text-red-600 hover:text-red-800"
-                        title="Delete"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
+                  <td>{project.views || 0}</td>
+                  <td>{new Date(project.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    <Button as={Link} to={`/admin/projects/${project.projectId}`} size="sm" variant="outline-info" className="me-1">View</Button>
+                    <Button as={Link} to={`/admin/projects/edit/${project.projectId}`} size="sm" variant="outline-primary" className="me-1">Edit</Button>
+                    <Button size="sm" variant="outline-danger" onClick={() => handleDeleteClick(project)}>Delete</Button>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
+          </Table>
+        </Card.Body>
         {pagination.totalPages > 1 && (
-          <div className="px-6 py-4 border-t">
-            <Pagination
-              currentPage={pagination.currentPage}
-              totalPages={pagination.totalPages}
-              onPageChange={setPage}
-            />
-          </div>
+          <Card.Footer>
+            <Pagination className="mb-0 justify-content-center">
+              <Pagination.Prev onClick={() => setPage(pagination.currentPage - 1)} disabled={pagination.currentPage === 1} />
+              {[...Array(pagination.totalPages).keys()].map(num => (
+                <Pagination.Item key={num + 1} active={num + 1 === pagination.currentPage} onClick={() => setPage(num + 1)}>
+                  {num + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next onClick={() => setPage(pagination.currentPage + 1)} disabled={pagination.currentPage === pagination.totalPages} />
+            </Pagination>
+          </Card.Footer>
         )}
-      </div>
+      </Card>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && selectedProject && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Delete Project</h3>
-            <p className="text-gray-700 mb-4">
-              Are you sure you want to delete "{selectedProject.title}"?
-            </p>
-            
-            <div className="mb-4">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  value="soft"
-                  checked={deleteType === 'soft'}
-                  onChange={(e) => setDeleteType('soft')}
-                  className="text-blue-600"
-                />
-                <span>Soft delete (move to trash)</span>
-              </label>
-              <label className="flex items-center space-x-2 mt-2">
-                <input
-                  type="radio"
-                  value="permanent"
-                  checked={deleteType === 'permanent'}
-                  onChange={(e) => setDeleteType('permanent')}
-                  className="text-red-600"
-                />
-                <span>Permanently delete (cannot be undone)</span>
-              </label>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      {/* Delete Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Project</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete "<strong>{selectedProject?.title}</strong>"?</p>
+          <Form.Group>
+            <Form.Check
+              type="radio"
+              label="Soft delete (move to trash)"
+              name="deleteType"
+              value="soft"
+              checked={deleteType === 'soft'}
+              onChange={() => setDeleteType('soft')}
+            />
+            <Form.Check
+              type="radio"
+              label="Permanently delete (cannot be undone)"
+              name="deleteType"
+              value="permanent"
+              checked={deleteType === 'permanent'}
+              onChange={() => setDeleteType('permanent')}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+          <Button variant="danger" onClick={handleDelete}>Delete</Button>
+        </Modal.Footer>
+      </Modal>
+    </Container>
   );
 };
 
 export default ProjectList;
+
+

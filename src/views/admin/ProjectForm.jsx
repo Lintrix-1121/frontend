@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import useProjectStore from '../../stores/shared/projectStore';
-import LoadingSpinner from '../../components/admin/LoadingSpinner';
-import ErrorMessage from '../../components/projects/ErrorMessage';
+import { Container, Form, Row, Col, Button, Card, Badge, Alert, Spinner } from 'react-bootstrap';
+import { useProjectStore } from '../../stores/shared/projectStore';
 import toast from 'react-hot-toast';
 
 const ProjectForm = () => {
@@ -32,60 +31,55 @@ const ProjectForm = () => {
     clientTestimonial: '',
     testimonialAuthor: '',
     testimonialPosition: '',
+    projectManager: '',
+    teamMembers: [],
+    stakeholders: [],
+    budget: '',
+    currency: 'USD',
+    roi: '',
+    kpis: {},
+    isConfidential: false,
+    confidentialityNotice: '',
     status: 'planned',
+    completionPercentage: 0,
+    milestones: [],
     priority: 'medium',
     isFeatured: false,
     isPublished: false,
     tags: [],
     location: '',
     country: '',
-    budget: '',
-    currency: 'USD'
+    notes: '',
+    metaTitle: '',
+    metaDescription: '',
+    metaKeywords: '',
   });
 
   const [mediaFiles, setMediaFiles] = useState([]);
   const [techInput, setTechInput] = useState('');
   const [tagInput, setTagInput] = useState('');
+  const [milestoneInput, setMilestoneInput] = useState({ title: '', date: '', description: '' });
+  const [teamMemberInput, setTeamMemberInput] = useState('');
+  const [stakeholderInput, setStakeholderInput] = useState('');
 
   useEffect(() => {
-    if (id) {
-      fetchProject(id);
-    }
+    if (id) fetchProject(id);
   }, [id]);
 
   useEffect(() => {
     if (currentProject && id) {
       setFormData({
-        title: currentProject.title || '',
-        category: currentProject.category || 'Software Development',
-        subCategory: currentProject.subCategory || '',
-        clientName: currentProject.clientName || '',
-        clientIndustry: currentProject.clientIndustry || '',
-        shortDescription: currentProject.shortDescription || '',
-        fullDescription: currentProject.fullDescription || '',
-        challenge: currentProject.challenge || '',
-        solution: currentProject.solution || '',
-        results: currentProject.results || '',
-        technologies: currentProject.technologies || [],
-        teamSize: currentProject.teamSize || '',
-        projectDuration: currentProject.projectDuration || '',
+        ...formData,
+        ...currentProject,
         startDate: currentProject.startDate ? currentProject.startDate.split('T')[0] : '',
         endDate: currentProject.endDate ? currentProject.endDate.split('T')[0] : '',
-        projectUrl: currentProject.projectUrl || '',
-        githubUrl: currentProject.githubUrl || '',
-        demoUrl: currentProject.demoUrl || '',
-        clientTestimonial: currentProject.clientTestimonial || '',
-        testimonialAuthor: currentProject.testimonialAuthor || '',
-        testimonialPosition: currentProject.testimonialPosition || '',
-        status: currentProject.status || 'planned',
-        priority: currentProject.priority || 'medium',
-        isFeatured: currentProject.isFeatured || false,
-        isPublished: currentProject.isPublished || false,
-        tags: currentProject.tags || [],
-        location: currentProject.location || '',
-        country: currentProject.country || '',
         budget: currentProject.budget || '',
-        currency: currentProject.currency || 'USD'
+        teamMembers: currentProject.teamMembers || [],
+        stakeholders: currentProject.stakeholders || [],
+        milestones: currentProject.milestones || [],
+        kpis: currentProject.kpis || {},
+        tags: currentProject.tags || [],
+        technologies: currentProject.technologies || [],
       });
     }
   }, [currentProject, id]);
@@ -100,10 +94,7 @@ const ProjectForm = () => {
 
   const handleArrayAdd = (field, value, setInput) => {
     if (value && !formData[field].includes(value)) {
-      setFormData(prev => ({
-        ...prev,
-        [field]: [...prev[field], value]
-      }));
+      setFormData(prev => ({ ...prev, [field]: [...prev[field], value] }));
       setInput('');
     }
   };
@@ -121,558 +112,819 @@ const ProjectForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const projectData = {
         ...formData,
-        createdBy: user.userId
+        createdBy: user.userId,
+        updatedBy: user.userId,
       };
-
       let result;
       if (id) {
         result = await updateProject(id, projectData, mediaFiles);
       } else {
         result = await createProject(projectData, mediaFiles);
       }
-
       if (result.success) {
-        toast.success(result.message || 'Project saved successfully');
+        toast.success(result.message || 'Project saved');
         navigate('/admin/projects');
       } else {
         toast.error(result.error || 'Error saving project');
       }
-    } catch (error) {
+    } catch (err) {
       toast.error('An error occurred');
-      console.error('Submit error:', error);
+      console.error(err);
     }
   };
 
-  const categoryOptions = [
-    { value: 'IoT', label: 'Internet of Things' },
-    { value: 'Electronics', label: 'Electronics' },
-    { value: 'Mobile apps', label: 'Mobile Apps' },
-    { value: 'Web apps', label: 'Web Apps' },
-    { value: 'Installations', label: 'Installations' },
-    { value: 'Networking', label: 'Networking' },
-    { value: 'Embedded Systems', label: 'Embedded Systems' },
-    { value: 'Software Development', label: 'Software Development' },
-    { value: 'ICT Infrastructure', label: 'ICT Infrastructure' },
-    { value: 'Security Systems', label: 'Security Systems' },
-    { value: 'Cloud Computing', label: 'Cloud Computing' },
-    { value: 'AI/ML', label: 'AI/ML' },
-    { value: 'Blockchain', label: 'Blockchain' },
-    { value: 'Robotics', label: 'Robotics' },
-    { value: 'Telecommunications', label: 'Telecommunications' },
-    { value: 'Data Center', label: 'Data Center' },
-    { value: 'IT Consulting', label: 'IT Consulting' },
-    { value: 'Hardware Design', label: 'Hardware Design' },
-    { value: 'Firmware Development', label: 'Firmware Development' },
-    { value: 'System Integration', label: 'System Integration' }
-  ];
-
-  if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage message={error} />;
+  if (loading) return <div className="text-center p-5"><Spinner animation="border" /></div>;
+  if (error) return <Alert variant="danger">{error}</Alert>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">
-        {id ? 'Edit Project' : 'Create New Project'}
-      </h1>
+    <Container fluid className="py-4">
+      <h1 className="h2 mb-4">{id ? 'Edit Project' : 'Create New Project'}</h1>
+      <Form onSubmit={handleSubmit}>
+        <Row>
+          <Col lg={8}>
+            {/* Basic Info */}
+            <Card className="mb-4">
+              <Card.Header>Basic Information</Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Title *</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Category *</Form.Label>
+                      <Form.Select name="category" value={formData.category} onChange={handleChange} required>
+                        <option value="IoT">IoT</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Mobile apps">Mobile Apps</option>
+                        <option value="Web apps">Web Apps</option>
+                        <option value="Installations">Installations</option>
+                        <option value="Networking">Networking</option>
+                        <option value="Embedded Systems">Embedded Systems</option>
+                        <option value="Software Development">Software Development</option>
+                        <option value="ICT Infrastructure">ICT Infrastructure</option>
+                        <option value="Security Systems">Security Systems</option>
+                        <option value="Cloud Computing">Cloud Computing</option>
+                        <option value="AI/ML">AI/ML</option>
+                        <option value="Blockchain">Blockchain</option>
+                        <option value="Robotics">Robotics</option>
+                        <option value="Telecommunications">Telecommunications</option>
+                        <option value="Data Center">Data Center</option>
+                        <option value="IT Consulting">IT Consulting</option>
+                        <option value="Hardware Design">Hardware Design</option>
+                        <option value="Firmware Development">Firmware Development</option>
+                        <option value="System Integration">System Integration</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Sub Category</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="subCategory"
+                        value={formData.subCategory}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Client Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="clientName"
+                        value={formData.clientName}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Client Industry</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="clientIndustry"
+                        value={formData.clientIndustry}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Information */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Title *</label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                required
-                className="w-full border rounded-lg px-3 py-2"
-              />
+            {/* Description & Details */}
+            <Card className="mb-4">
+              <Card.Header>Description & Details</Card.Header>
+              <Card.Body>
+                <Form.Group className="mb-3">
+                  <Form.Label>Short Description</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    name="shortDescription"
+                    value={formData.shortDescription}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Full Description *</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={5}
+                    name="fullDescription"
+                    value={formData.fullDescription}
+                    onChange={handleChange}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Challenge</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="challenge"
+                    value={formData.challenge}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Solution</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="solution"
+                    value={formData.solution}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Results</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="results"
+                    value={formData.results}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Card.Body>
+            </Card>
+
+            {/* Technologies & Tags */}
+            <Card className="mb-4">
+              <Card.Header>Technologies & Tags</Card.Header>
+              <Card.Body>
+                <Form.Group className="mb-3">
+                  <Form.Label>Technologies</Form.Label>
+                  <div className="d-flex">
+                    <Form.Control
+                      type="text"
+                      value={techInput}
+                      onChange={(e) => setTechInput(e.target.value)}
+                      placeholder="Add technology"
+                      className="me-2"
+                    />
+                    <Button variant="outline-primary" onClick={() => handleArrayAdd('technologies', techInput, setTechInput)}>
+                      Add
+                    </Button>
+                  </div>
+                  <div className="mt-2">
+                    {formData.technologies.map(tech => (
+                      <Badge bg="secondary" className="me-1 mb-1" key={tech}>
+                        {tech}{' '}
+                        <span
+                          role="button"
+                          className="text-white ms-1"
+                          onClick={() => handleArrayRemove('technologies', tech)}
+                        >
+                          ×
+                        </span>
+                      </Badge>
+                    ))}
+                  </div>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Tags</Form.Label>
+                  <div className="d-flex">
+                    <Form.Control
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      placeholder="Add tag"
+                      className="me-2"
+                    />
+                    <Button variant="outline-primary" onClick={() => handleArrayAdd('tags', tagInput, setTagInput)}>
+                      Add
+                    </Button>
+                  </div>
+                  <div className="mt-2">
+                    {formData.tags.map(tag => (
+                      <Badge bg="info" className="me-1 mb-1" key={tag}>
+                        {tag}{' '}
+                        <span
+                          role="button"
+                          className="text-white ms-1"
+                          onClick={() => handleArrayRemove('tags', tag)}
+                        >
+                          ×
+                        </span>
+                      </Badge>
+                    ))}
+                  </div>
+                </Form.Group>
+              </Card.Body>
+            </Card>
+
+            {/* Timeline & Team */}
+            <Card className="mb-4">
+              <Card.Header>Timeline & Team</Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Start Date</Form.Label>
+                      <Form.Control
+                        type="date"
+                        name="startDate"
+                        value={formData.startDate}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>End Date</Form.Label>
+                      <Form.Control
+                        type="date"
+                        name="endDate"
+                        value={formData.endDate}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Project Duration</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="projectDuration"
+                        value={formData.projectDuration}
+                        onChange={handleChange}
+                        placeholder="e.g. 3 months"
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Team Size</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="teamSize"
+                        value={formData.teamSize}
+                        onChange={handleChange}
+                        min={1}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Form.Group className="mb-3">
+                  <Form.Label>Team Members (User IDs)</Form.Label>
+                  <div className="d-flex">
+                    <Form.Control
+                      type="text"
+                      value={teamMemberInput}
+                      onChange={(e) => setTeamMemberInput(e.target.value)}
+                      placeholder="Enter user ID"
+                      className="me-2"
+                    />
+                    <Button variant="outline-primary" onClick={() => handleArrayAdd('teamMembers', teamMemberInput, setTeamMemberInput)}>
+                      Add
+                    </Button>
+                  </div>
+                  <div className="mt-2">
+                    {formData.teamMembers.map(id => (
+                      <Badge bg="dark" className="me-1 mb-1" key={id}>
+                        #{id}{' '}
+                        <span
+                          role="button"
+                          className="text-white ms-1"
+                          onClick={() => handleArrayRemove('teamMembers', id)}
+                        >
+                          ×
+                        </span>
+                      </Badge>
+                    ))}
+                  </div>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Stakeholders</Form.Label>
+                  <div className="d-flex">
+                    <Form.Control
+                      type="text"
+                      value={stakeholderInput}
+                      onChange={(e) => setStakeholderInput(e.target.value)}
+                      placeholder="Add stakeholder"
+                      className="me-2"
+                    />
+                    <Button variant="outline-primary" onClick={() => handleArrayAdd('stakeholders', stakeholderInput, setStakeholderInput)}>
+                      Add
+                    </Button>
+                  </div>
+                  <div className="mt-2">
+                    {formData.stakeholders.map(s => (
+                      <Badge bg="warning" className="me-1 mb-1" key={s}>
+                        {s}{' '}
+                        <span
+                          role="button"
+                          className="text-dark ms-1"
+                          onClick={() => handleArrayRemove('stakeholders', s)}
+                        >
+                          ×
+                        </span>
+                      </Badge>
+                    ))}
+                  </div>
+                </Form.Group>
+              </Card.Body>
+            </Card>
+
+            {/* Links */}
+            <Card className="mb-4">
+              <Card.Header>Links</Card.Header>
+              <Card.Body>
+                <Form.Group className="mb-3">
+                  <Form.Label>Project URL</Form.Label>
+                  <Form.Control
+                    type="url"
+                    name="projectUrl"
+                    value={formData.projectUrl}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>GitHub URL</Form.Label>
+                  <Form.Control
+                    type="url"
+                    name="githubUrl"
+                    value={formData.githubUrl}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Demo URL</Form.Label>
+                  <Form.Control
+                    type="url"
+                    name="demoUrl"
+                    value={formData.demoUrl}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Card.Body>
+            </Card>
+
+            {/* Testimonial */}
+            <Card className="mb-4">
+              <Card.Header>Client Testimonial</Card.Header>
+              <Card.Body>
+                <Form.Group className="mb-3">
+                  <Form.Label>Testimonial Text</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="clientTestimonial"
+                    value={formData.clientTestimonial}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Author</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="testimonialAuthor"
+                        value={formData.testimonialAuthor}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Position</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="testimonialPosition"
+                        value={formData.testimonialPosition}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+
+            {/* Milestones */}
+            <Card className="mb-4">
+              <Card.Header>Milestones</Card.Header>
+              <Card.Body>
+                <Row className="g-2">
+                  <Col md={5}>
+                    <Form.Control
+                      type="text"
+                      placeholder="Title"
+                      value={milestoneInput.title}
+                      onChange={(e) => setMilestoneInput({ ...milestoneInput, title: e.target.value })}
+                    />
+                  </Col>
+                  <Col md={3}>
+                    <Form.Control
+                      type="date"
+                      value={milestoneInput.date}
+                      onChange={(e) => setMilestoneInput({ ...milestoneInput, date: e.target.value })}
+                    />
+                  </Col>
+                  <Col md={3}>
+                    <Form.Control
+                      type="text"
+                      placeholder="Description"
+                      value={milestoneInput.description}
+                      onChange={(e) => setMilestoneInput({ ...milestoneInput, description: e.target.value })}
+                    />
+                  </Col>
+                  <Col md={1}>
+                    <Button
+                      variant="outline-success"
+                      onClick={() => {
+                        if (milestoneInput.title && milestoneInput.date) {
+                          setFormData(prev => ({
+                            ...prev,
+                            milestones: [...prev.milestones, { ...milestoneInput, status: 'pending' }]
+                          }));
+                          setMilestoneInput({ title: '', date: '', description: '' });
+                        }
+                      }}
+                    >
+                      +
+                    </Button>
+                  </Col>
+                </Row>
+                <div className="mt-3">
+                  {formData.milestones.map((m, idx) => (
+                    <div key={idx} className="d-flex justify-content-between align-items-center border-bottom py-1">
+                      <div>
+                        <strong>{m.title}</strong> - {m.date} {m.description && `(${m.description})`}
+                      </div>
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => {
+                          const newMilestones = [...formData.milestones];
+                          newMilestones.splice(idx, 1);
+                          setFormData(prev => ({ ...prev, milestones: newMilestones }));
+                        }}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </Card.Body>
+            </Card>
+
+            {/* Budget & KPIs */}
+            <Card className="mb-4">
+              <Card.Header>Budget & KPIs</Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Budget</Form.Label>
+                      <Form.Control
+                        type="number"
+                        step="0.01"
+                        name="budget"
+                        value={formData.budget}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Currency</Form.Label>
+                      <Form.Select name="currency" value={formData.currency} onChange={handleChange}>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                        <option value="JPY">JPY</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>ROI</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="roi"
+                        value={formData.roi}
+                        onChange={handleChange}
+                        placeholder="e.g. 150%"
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Completion Percentage</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="completionPercentage"
+                        value={formData.completionPercentage}
+                        onChange={handleChange}
+                        min={0}
+                        max={100}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Form.Group className="mb-3">
+                  <Form.Label>KPIs (JSON)</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    name="kpis"
+                    value={JSON.stringify(formData.kpis, null, 2)}
+                    onChange={(e) => {
+                      try {
+                        const parsed = JSON.parse(e.target.value);
+                        setFormData(prev => ({ ...prev, kpis: parsed }));
+                      } catch {
+                        // keep as is
+                      }
+                    }}
+                  />
+                </Form.Group>
+              </Card.Body>
+            </Card>
+
+            {/* Confidentiality */}
+            <Card className="mb-4">
+              <Card.Header>Confidentiality</Card.Header>
+              <Card.Body>
+                <Form.Group className="mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    label="Is Confidential"
+                    name="isConfidential"
+                    checked={formData.isConfidential}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Confidentiality Notice</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    name="confidentialityNotice"
+                    value={formData.confidentialityNotice}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Card.Body>
+            </Card>
+
+            {/* SEO & Meta */}
+            <Card className="mb-4">
+              <Card.Header>SEO & Meta</Card.Header>
+              <Card.Body>
+                <Form.Group className="mb-3">
+                  <Form.Label>Meta Title</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="metaTitle"
+                    value={formData.metaTitle}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Meta Description</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    name="metaDescription"
+                    value={formData.metaDescription}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Meta Keywords</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="metaKeywords"
+                    value={formData.metaKeywords}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Card.Body>
+            </Card>
+
+            {/* Location & Notes */}
+            <Card className="mb-4">
+              <Card.Header>Location & Notes</Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Location</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Country</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="country"
+                        value={formData.country}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Form.Group className="mb-3">
+                  <Form.Label>Notes</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    name="notes"
+                    value={formData.notes}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Card.Body>
+            </Card>
+
+            {/* Media Upload */}
+            <Card className="mb-4">
+              <Card.Header>Media Files</Card.Header>
+              <Card.Body>
+                <Form.Group>
+                  <Form.Label>Upload Images, Videos, or Documents</Form.Label>
+                  <Form.Control
+                    type="file"
+                    multiple
+                    accept="image/*,video/*,.pdf,.doc,.docx"
+                    onChange={handleFileChange}
+                  />
+                  <Form.Text className="text-muted">
+                    Max 20 files. Images (10MB), Videos (100MB), Documents (20MB)
+                  </Form.Text>
+                </Form.Group>
+                {mediaFiles.length > 0 && (
+                  <div className="mt-3">
+                    <strong>Selected files:</strong>
+                    <ul>
+                      {Array.from(mediaFiles).map((file, idx) => (
+                        <li key={idx}>{file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
+
+            {/* Submit */}
+            <div className="d-flex gap-2 mb-5">
+              <Button variant="secondary" onClick={() => navigate('/admin/projects')}>Cancel</Button>
+              <Button variant="primary" type="submit">{id ? 'Update Project' : 'Create Project'}</Button>
             </div>
+          </Col>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Category *</label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                required
-                className="w-full border rounded-lg px-3 py-2"
-              >
-                {categoryOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <Col lg={4}>
+            {/* Status, Priority, Featured, Published */}
+            <Card className="mb-4">
+              <Card.Header>Status & Settings</Card.Header>
+              <Card.Body>
+                <Form.Group className="mb-3">
+                  <Form.Label>Status</Form.Label>
+                  <Form.Select name="status" value={formData.status} onChange={handleChange}>
+                    <option value="planned">Planned</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="on-hold">On Hold</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="maintenance">Maintenance</option>
+                  </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Priority</Form.Label>
+                  <Form.Select name="priority" value={formData.priority} onChange={handleChange}>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    label="Featured Project"
+                    name="isFeatured"
+                    checked={formData.isFeatured}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    label="Published"
+                    name="isPublished"
+                    checked={formData.isPublished}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Card.Body>
+            </Card>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Sub Category</label>
-              <input
-                type="text"
-                name="subCategory"
-                value={formData.subCategory}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
+            {/* Project Manager (user ID) */}
+            <Card className="mb-4">
+              <Card.Header>Project Manager</Card.Header>
+              <Card.Body>
+                <Form.Group>
+                  <Form.Label>Manager User ID</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="projectManager"
+                    value={formData.projectManager}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Card.Body>
+            </Card>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Client Name</label>
-              <input
-                type="text"
-                name="clientName"
-                value={formData.clientName}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Client Industry</label>
-              <input
-                type="text"
-                name="clientIndustry"
-                value={formData.clientIndustry}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Status & Priority */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Status & Priority</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Status</label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              >
-                <option value="planned">Planned</option>
-                <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="on-hold">On Hold</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="maintenance">Maintenance</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Priority</label>
-              <select
-                name="priority"
-                value={formData.priority}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="critical">Critical</option>
-              </select>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  name="isFeatured"
-                  checked={formData.isFeatured}
-                  onChange={handleChange}
-                  className="rounded"
-                />
-                <span>Featured Project</span>
-              </label>
-
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  name="isPublished"
-                  checked={formData.isPublished}
-                  onChange={handleChange}
-                  className="rounded"
-                />
-                <span>Published</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {/* Description */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Description</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Short Description</label>
-              <textarea
-                name="shortDescription"
-                value={formData.shortDescription}
-                onChange={handleChange}
-                rows="3"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Full Description *</label>
-              <textarea
-                name="fullDescription"
-                value={formData.fullDescription}
-                onChange={handleChange}
-                required
-                rows="6"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Challenge</label>
-              <textarea
-                name="challenge"
-                value={formData.challenge}
-                onChange={handleChange}
-                rows="4"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Solution</label>
-              <textarea
-                name="solution"
-                value={formData.solution}
-                onChange={handleChange}
-                rows="4"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Results</label>
-              <textarea
-                name="results"
-                value={formData.results}
-                onChange={handleChange}
-                rows="4"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Technologies */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Technologies</h2>
-          
-          <div className="space-y-4">
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={techInput}
-                onChange={(e) => setTechInput(e.target.value)}
-                placeholder="Add technology..."
-                className="flex-1 border rounded-lg px-3 py-2"
-              />
-              <button
-                type="button"
-                onClick={() => handleArrayAdd('technologies', techInput, setTechInput)}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Add
-              </button>
-            </div>
-            
-            <div className="flex flex-wrap gap-2">
-              {formData.technologies.map(tech => (
-                <span
-                  key={tech}
-                  className="bg-gray-100 px-3 py-1 rounded-full flex items-center space-x-1"
-                >
-                  <span>{tech}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleArrayRemove('technologies', tech)}
-                    className="text-red-500 hover:text-red-700"
+            {/* Quick actions: clone, export */}
+            {id && (
+              <Card className="mb-4">
+                <Card.Header>Actions</Card.Header>
+                <Card.Body>
+                  <Button
+                    variant="outline-info"
+                    className="w-100 mb-2"
+                    onClick={async () => {
+                      const newTitle = prompt('Enter new title for clone:', `Copy of ${formData.title}`);
+                      if (newTitle) {
+                        const user = JSON.parse(localStorage.getItem('user') || '{}');
+                        const result = await useProjectStore.getState().cloneProject(id, newTitle, user.userId);
+                        if (result.success) toast.success('Project cloned');
+                        else toast.error('Clone failed');
+                      }
+                    }}
                   >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Dates & Timeline */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Timeline</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Start Date</label>
-              <input
-                type="date"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">End Date</label>
-              <input
-                type="date"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Project Duration</label>
-              <input
-                type="text"
-                name="projectDuration"
-                value={formData.projectDuration}
-                onChange={handleChange}
-                placeholder="e.g., 3 months"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Team Size</label>
-              <input
-                type="number"
-                name="teamSize"
-                value={formData.teamSize}
-                onChange={handleChange}
-                min="1"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Links */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Links</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Project URL</label>
-              <input
-                type="url"
-                name="projectUrl"
-                value={formData.projectUrl}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">GitHub URL</label>
-              <input
-                type="url"
-                name="githubUrl"
-                value={formData.githubUrl}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Demo URL</label>
-              <input
-                type="url"
-                name="demoUrl"
-                value={formData.demoUrl}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Location */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Location</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Location</label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                placeholder="City, State"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Country</label>
-              <input
-                type="text"
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Budget */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Budget</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Budget</label>
-              <input
-                type="number"
-                name="budget"
-                value={formData.budget}
-                onChange={handleChange}
-                step="0.01"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Currency</label>
-              <select
-                name="currency"
-                value={formData.currency}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
-              >
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-                <option value="JPY">JPY</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Testimonial */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Client Testimonial</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Testimonial</label>
-              <textarea
-                name="clientTestimonial"
-                value={formData.clientTestimonial}
-                onChange={handleChange}
-                rows="4"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Author</label>
-                <input
-                  type="text"
-                  name="testimonialAuthor"
-                  value={formData.testimonialAuthor}
-                  onChange={handleChange}
-                  className="w-full border rounded-lg px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Position</label>
-                <input
-                  type="text"
-                  name="testimonialPosition"
-                  value={formData.testimonialPosition}
-                  onChange={handleChange}
-                  className="w-full border rounded-lg px-3 py-2"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Media Upload */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Media Files</h2>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Upload Images/Videos/Documents
-            </label>
-            <input
-              type="file"
-              multiple
-              accept="image/*,video/*,.pdf,.doc,.docx"
-              onChange={handleFileChange}
-              className="w-full"
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              Max 20 files. Images (10MB), Videos (100MB), Documents (20MB)
-            </p>
-          </div>
-
-          {mediaFiles.length > 0 && (
-            <div className="mt-4">
-              <h3 className="font-medium mb-2">Selected files:</h3>
-              <ul className="list-disc list-inside">
-                {Array.from(mediaFiles).map((file, index) => (
-                  <li key={index} className="text-sm text-gray-600">
-                    {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        {/* Submit Buttons */}
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={() => navigate('/admin/projects')}
-            className="px-6 py-2 border rounded-lg hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-          >
-            {id ? 'Update Project' : 'Create Project'}
-          </button>
-        </div>
-      </form>
-    </div>
+                    Clone Project
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    className="w-100"
+                    onClick={async () => {
+                      const result = await useProjectStore.getState().exportProject(id, 'json');
+                      if (result.success) {
+                        const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `project-${id}.json`;
+                        a.click();
+                      } else toast.error('Export failed');
+                    }}
+                  >
+                    Export as JSON
+                  </Button>
+                </Card.Body>
+              </Card>
+            )}
+          </Col>
+        </Row>
+      </Form>
+    </Container>
   );
 };
 
 export default ProjectForm;
-
-
-

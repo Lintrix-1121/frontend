@@ -1,297 +1,304 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import useProjectStore from '../../stores/shared/projectStore';
-import projectController from '../../controllers/shared/projectController';
-import ProjectMediaGallery from '../../components/projects/ProjectMediaGallery';
-import ProjectTimeline from '../../components/projects/ProjectTimeline';
-import ProjectGrid from '../../components/projects/ProjectGrid';
+import { Container, Row, Col, Card, Badge, Button, Carousel, Tabs, Tab, Table, Alert } from 'react-bootstrap';
+import { useProjectStore } from '../../stores/shared/projectStore';
 import LoadingSpinner from '../../components/admin/LoadingSpinner';
 import ErrorMessage from '../../components/projects/ErrorMessage';
+import toast from 'react-hot-toast';
 
-const ProjectDetail = () => {
-  const { identifier } = useParams();
-  const { currentProject, loading, error } = useProjectStore();
-  const [relatedProjects, setRelatedProjects] = useState([]);
-  const [pageLoading, setPageLoading] = useState(true);
+const ProjectDetails = () => {
+  const { id } = useParams();
+  const { currentProject, relatedProjects, timelineData, loading, error, fetchProject, fetchRelatedProjects, fetchProjectTimeline, clearCurrentProject } = useProjectStore();
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    loadProjectData();
-  }, [identifier]);
-
-  const loadProjectData = async () => {
-    setPageLoading(true);
-    const data = await projectController.loadProjectDetailPage(identifier);
-    if (data) {
-      setRelatedProjects(data.relatedProjects);
+    if (id) {
+      fetchProject(id);
+      fetchRelatedProjects(id);
+      fetchProjectTimeline(id);
     }
-    setPageLoading(false);
-  };
+    return () => clearCurrentProject();
+  }, [id]);
 
-  if (pageLoading || loading) return <LoadingSpinner />;
-  if (error || !currentProject) return <ErrorMessage message="Project not found" />;
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage message={error} />;
+  if (!currentProject) return <Alert variant="warning">Project not found</Alert>;
 
   const project = currentProject;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-linear-to-r from-blue-600 to-purple-600 text-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl">
-            <div className="flex gap-2 mb-4">
-              <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
-                {project.category}
-              </span>
-              <span className={`bg-${project.statusBadge.color}-500/20 px-3 py-1 rounded-full text-sm`}>
-                {project.statusBadge.text}
-              </span>
-              {project.isFeatured && (
-                <span className="bg-yellow-500/20 px-3 py-1 rounded-full text-sm">
-                  Featured
-                </span>
-              )}
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">{project.title}</h1>
-            {project.clientName && (
-              <p className="text-xl opacity-90">Client: {project.clientName}</p>
-            )}
+    <Container fluid className="py-4">
+      <Row className="mb-4">
+        <Col>
+          <Button as={Link} to="/admin/projects" variant="outline-secondary" className="mb-3">← Back to Projects</Button>
+          <h1 className="h2">{project.title}</h1>
+          <div className="d-flex flex-wrap gap-2 mt-2">
+            <Badge bg="secondary">{project.category}</Badge>
+            <Badge bg={
+              project.status === 'completed' ? 'success' :
+              project.status === 'in-progress' ? 'primary' :
+              project.status === 'planned' ? 'secondary' :
+              project.status === 'on-hold' ? 'warning' :
+              project.status === 'cancelled' ? 'danger' : 'info'
+            }>
+              {project.status}
+            </Badge>
+            <Badge bg={
+              project.priority === 'critical' ? 'danger' :
+              project.priority === 'high' ? 'warning' :
+              project.priority === 'medium' ? 'info' : 'secondary'
+            }>
+              {project.priority}
+            </Badge>
+            {project.isFeatured && <Badge bg="warning">Featured</Badge>}
+            {project.isPublished ? <Badge bg="success">Published</Badge> : <Badge bg="secondary">Draft</Badge>}
+            {project.isConfidential && <Badge bg="danger">Confidential</Badge>}
           </div>
-        </div>
-      </div>
+        </Col>
+        <Col xs="auto">
+          <Button as={Link} to={`/admin/projects/edit/${project.projectId}`} variant="primary" className="me-2">Edit</Button>
+          <Button variant="outline-info" className="me-2" onClick={async () => {
+            const newTitle = prompt('Enter new title for clone:', `Copy of ${project.title}`);
+            if (newTitle) {
+              const user = JSON.parse(localStorage.getItem('user') || '{}');
+              const result = await useProjectStore.getState().cloneProject(project.projectId, newTitle, user.userId);
+              if (result.success) toast.success('Project cloned');
+              else toast.error('Clone failed');
+            }
+          }}>Clone</Button>
+          <Button variant="outline-secondary" onClick={async () => {
+            const result = await useProjectStore.getState().exportProject(project.projectId, 'json');
+            if (result.success) {
+              const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' });
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `project-${project.projectId}.json`;
+              a.click();
+            } else toast.error('Export failed');
+          }}>Export JSON</Button>
+        </Col>
+      </Row>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Main Content */}
-          <div className="lg:col-span-2">
-            {/* Media Gallery */}
-            {project.media?.length > 0 && (
-              <div className="mb-8">
-                <ProjectMediaGallery media={project.media} />
-              </div>
-            )}
+      <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-4">
+        <Tab eventKey="overview" title="Overview">
+          <Row>
+            <Col lg={8}>
+              <Card className="mb-4">
+                <Card.Body>
+                  <h5>Description</h5>
+                  <p>{project.fullDescription}</p>
+                  {project.challenge && (
+                    <>
+                      <h5>Challenge</h5>
+                      <p>{project.challenge}</p>
+                    </>
+                  )}
+                  {project.solution && (
+                    <>
+                      <h5>Solution</h5>
+                      <p>{project.solution}</p>
+                    </>
+                  )}
+                  {project.results && (
+                    <>
+                      <h5>Results</h5>
+                      <p>{project.results}</p>
+                    </>
+                  )}
+                </Card.Body>
+              </Card>
 
-            {/* Description */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-              <h2 className="text-2xl font-bold mb-4">Project Overview</h2>
-              <p className="text-gray-700 mb-6">{project.fullDescription}</p>
-
-              {project.challenge && (
-                <>
-                  <h3 className="text-xl font-semibold mb-2">The Challenge</h3>
-                  <p className="text-gray-700 mb-4">{project.challenge}</p>
-                </>
+              {project.media && project.media.length > 0 && (
+                <Card className="mb-4">
+                  <Card.Header>Media Gallery</Card.Header>
+                  <Card.Body>
+                    <Carousel>
+                      {project.media.map((media, idx) => (
+                        <Carousel.Item key={idx}>
+                          {media.mediaType === 'image' ? (
+                            <img src={media.mediaUrl} className="d-block w-100" alt={media.title || 'Project media'} style={{ maxHeight: '400px', objectFit: 'contain' }} />
+                          ) : media.mediaType === 'video' ? (
+                            <video controls className="d-block w-100" style={{ maxHeight: '400px' }}>
+                              <source src={media.mediaUrl} type={media.mimeType} />
+                            </video>
+                          ) : (
+                            <div className="text-center p-5 bg-light">
+                              <a href={media.mediaUrl} target="_blank" rel="noopener noreferrer">{media.fileName}</a>
+                            </div>
+                          )}
+                          {media.title && <Carousel.Caption><h5>{media.title}</h5></Carousel.Caption>}
+                        </Carousel.Item>
+                      ))}
+                    </Carousel>
+                  </Card.Body>
+                </Card>
               )}
 
-              {project.solution && (
-                <>
-                  <h3 className="text-xl font-semibold mb-2">Our Solution</h3>
-                  <p className="text-gray-700 mb-4">{project.solution}</p>
-                </>
+              {project.milestones && project.milestones.length > 0 && (
+                <Card className="mb-4">
+                  <Card.Header>Milestones</Card.Header>
+                  <Card.Body>
+                    <ul className="list-group">
+                      {project.milestones.map((m, idx) => (
+                        <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
+                          <div>
+                            <strong>{m.title}</strong> - {m.date}
+                            {m.description && <span className="text-muted ms-2">({m.description})</span>}
+                          </div>
+                          <Badge bg={m.status === 'completed' ? 'success' : 'warning'}>{m.status || 'pending'}</Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card.Body>
+                </Card>
+              )}
+            </Col>
+
+            <Col lg={4}>
+              <Card className="mb-4">
+                <Card.Header>Details</Card.Header>
+                <Card.Body>
+                  <p><strong>Client:</strong> {project.clientName || 'N/A'}</p>
+                  <p><strong>Industry:</strong> {project.clientIndustry || 'N/A'}</p>
+                  <p><strong>Sub Category:</strong> {project.subCategory || 'N/A'}</p>
+                  <p><strong>Team Size:</strong> {project.teamSize || 'N/A'}</p>
+                  <p><strong>Duration:</strong> {project.projectDuration || 'N/A'}</p>
+                  <p><strong>Start:</strong> {project.formattedStartDate}</p>
+                  <p><strong>End:</strong> {project.formattedEndDate}</p>
+                  <p><strong>Budget:</strong> {project.formattedBudget}</p>
+                  <p><strong>ROI:</strong> {project.roi || 'N/A'}</p>
+                  <p><strong>Completion:</strong> {project.completionPercentage}%</p>
+                  <p><strong>Views:</strong> {project.views}</p>
+                  <p><strong>Likes:</strong> {project.likes}</p>
+                  <p><strong>Shares:</strong> {project.shares}</p>
+                  <p><strong>Location:</strong> {project.location || 'N/A'}</p>
+                  <p><strong>Country:</strong> {project.country || 'N/A'}</p>
+                </Card.Body>
+              </Card>
+
+              {project.technologies && project.technologies.length > 0 && (
+                <Card className="mb-4">
+                  <Card.Header>Technologies</Card.Header>
+                  <Card.Body>
+                    {project.technologies.map(tech => (
+                      <Badge bg="secondary" className="me-1 mb-1" key={tech}>{tech}</Badge>
+                    ))}
+                  </Card.Body>
+                </Card>
               )}
 
-              {project.results && (
-                <>
-                  <h3 className="text-xl font-semibold mb-2">Key Results</h3>
-                  <p className="text-gray-700 mb-4">{project.results}</p>
-                </>
+              {project.tags && project.tags.length > 0 && (
+                <Card className="mb-4">
+                  <Card.Header>Tags</Card.Header>
+                  <Card.Body>
+                    {project.tags.map(tag => (
+                      <Badge bg="info" className="me-1 mb-1" key={tag}>{tag}</Badge>
+                    ))}
+                  </Card.Body>
+                </Card>
               )}
-            </div>
 
-            {/* Technologies */}
-            {project.technologies?.length > 0 && (
-              <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h2 className="text-2xl font-bold mb-4">Technologies Used</h2>
-                <div className="flex flex-wrap gap-2">
-                  {project.technologies.map((tech, index) => (
-                    <span
-                      key={index}
-                      className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+              {project.kpis && Object.keys(project.kpis).length > 0 && (
+                <Card className="mb-4">
+                  <Card.Header>KPIs</Card.Header>
+                  <Card.Body>
+                    <Table size="sm">
+                      <tbody>
+                        {Object.entries(project.kpis).map(([key, value]) => (
+                          <tr key={key}>
+                            <td>{key}</td>
+                            <td>{value}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </Card.Body>
+                </Card>
+              )}
+            </Col>
+          </Row>
+        </Tab>
 
-            {/* Testimonial */}
-            {project.clientTestimonial && (
-              <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h2 className="text-2xl font-bold mb-4">Client Testimonial</h2>
-                <div className="bg-gray-50 p-6 rounded-lg">
-                  <p className="text-gray-700 italic mb-4">"{project.clientTestimonial}"</p>
-                  <div>
-                    <p className="font-semibold">{project.testimonialAuthor}</p>
-                    <p className="text-sm text-gray-500">{project.testimonialPosition}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column - Sidebar */}
-          <div className="lg:col-span-1">
-            {/* Project Info Card */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">Project Details</h3>
-              
-              <div className="space-y-4">
-                {project.clientName && (
-                  <div>
-                    <p className="text-sm text-gray-500">Client</p>
-                    <p className="font-semibold">{project.clientName}</p>
-                  </div>
-                )}
-
-                <div>
-                  <p className="text-sm text-gray-500">Status</p>
-                  <p className={`font-semibold text-${project.statusBadge.color}-600`}>
-                    {project.statusBadge.text}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-500">Priority</p>
-                  <p className={`font-semibold text-${project.priorityBadge.color}-600`}>
-                    {project.priorityBadge.text}
-                  </p>
-                </div>
-
-                {project.startDate && (
-                  <div>
-                    <p className="text-sm text-gray-500">Start Date</p>
-                    <p className="font-semibold">{project.formattedStartDate}</p>
-                  </div>
-                )}
-
-                {project.endDate && (
-                  <div>
-                    <p className="text-sm text-gray-500">End Date</p>
-                    <p className="font-semibold">{project.formattedEndDate}</p>
-                  </div>
-                )}
-
-                {project.projectDuration && (
-                  <div>
-                    <p className="text-sm text-gray-500">Duration</p>
-                    <p className="font-semibold">{project.projectDuration}</p>
-                  </div>
-                )}
-
-                {project.teamSize && (
-                  <div>
-                    <p className="text-sm text-gray-500">Team Size</p>
-                    <p className="font-semibold">{project.teamSize} members</p>
-                  </div>
-                )}
-
-                {project.budget && (
-                  <div>
-                    <p className="text-sm text-gray-500">Budget</p>
-                    <p className="font-semibold">{project.formattedBudget}</p>
-                  </div>
-                )}
-
-                {project.location && (
-                  <div>
-                    <p className="text-sm text-gray-500">Location</p>
-                    <p className="font-semibold">{project.location}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Project Manager Card */}
-            {project.manager && (
-              <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                <h3 className="text-xl font-bold mb-4">Project Manager</h3>
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                    {project.manager.profilePicture ? (
-                      <img
-                        src={project.manager.profilePicture}
-                        alt={project.manager.username}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
+        <Tab eventKey="timeline" title="Timeline">
+          {timelineData ? (
+            <Row>
+              <Col lg={6}>
+                <Card>
+                  <Card.Header>Project Timeline</Card.Header>
+                  <Card.Body>
+                    <p><strong>Start:</strong> {timelineData.project.startDate}</p>
+                    <p><strong>End:</strong> {timelineData.project.endDate}</p>
+                    <p><strong>Status:</strong> {timelineData.project.status}</p>
+                    <p><strong>Progress:</strong> {timelineData.project.completionPercentage}%</p>
+                    <div className="progress mb-3">
+                      <div
+                        className="progress-bar"
+                        role="progressbar"
+                        style={{ width: `${timelineData.project.completionPercentage}%` }}
+                        aria-valuenow={timelineData.project.completionPercentage}
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                      >
+                        {timelineData.project.completionPercentage}%
+                      </div>
+                    </div>
+                    <h6>Duration: {timelineData.duration}</h6>
+                  </Card.Body>
+                </Card>
+              </Col>
+              <Col lg={6}>
+                <Card>
+                  <Card.Header>Milestones Progress</Card.Header>
+                  <Card.Body>
+                    {timelineData.milestones && timelineData.milestones.length > 0 ? (
+                      <ul className="list-group">
+                        {timelineData.milestones.map((m, idx) => (
+                          <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
+                            {m.title}
+                            <Badge bg={m.status === 'completed' ? 'success' : 'warning'}>{m.status || 'pending'}</Badge>
+                          </li>
+                        ))}
+                      </ul>
                     ) : (
-                      <span className="text-xl">
-                        {project.manager.username?.[0]?.toUpperCase()}
-                      </span>
+                      <p>No milestones defined.</p>
                     )}
-                  </div>
-                  <div>
-                    <p className="font-semibold">{project.manager.username}</p>
-                    <p className="text-sm text-gray-500">{project.manager.email}</p>
-                  </div>
-                </div>
-              </div>
-            )}
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          ) : (
+            <Alert variant="info">No timeline data available.</Alert>
+          )}
+        </Tab>
 
-            {/* Links */}
-            {(project.projectUrl || project.githubUrl || project.demoUrl) && (
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-xl font-bold mb-4">Links</h3>
-                <div className="space-y-2">
-                  {project.projectUrl && (
-                    <a
-                      href={project.projectUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block text-blue-600 hover:underline"
-                    >
-                      🔗 Project Website
-                    </a>
-                  )}
-                  {project.githubUrl && (
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block text-gray-700 hover:underline"
-                    >
-                      💻 GitHub Repository
-                    </a>
-                  )}
-                  {project.demoUrl && (
-                    <a
-                      href={project.demoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block text-green-600 hover:underline"
-                    >
-                      🚀 Live Demo
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Timeline Section */}
-        {project.milestones?.length > 0 && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold mb-6">Project Timeline</h2>
-            <ProjectTimeline
-              startDate={project.startDate}
-              endDate={project.endDate}
-              milestones={project.milestones}
-              completionPercentage={project.completionPercentage}
-            />
-          </div>
-        )}
-
-        {/* Related Projects */}
-        {relatedProjects.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold mb-6">Related Projects</h2>
-            <ProjectGrid projects={relatedProjects} />
-          </div>
-        )}
-      </div>
-    </div>
+        <Tab eventKey="related" title="Related Projects">
+          {relatedProjects && relatedProjects.length > 0 ? (
+            <Row xs={1} md={2} lg={3} className="g-4">
+              {relatedProjects.map(rel => (
+                <Col key={rel.projectId}>
+                  <Card>
+                    <Card.Img variant="top" src={rel.featuredImage || 'https://via.placeholder.com/300x200'} style={{ height: '200px', objectFit: 'cover' }} />
+                    <Card.Body>
+                      <Card.Title>{rel.title}</Card.Title>
+                      <Card.Text>
+                        <Badge bg="secondary">{rel.category}</Badge>
+                      </Card.Text>
+                      <Button as={Link} to={`/admin/projects/${rel.projectId}`} variant="outline-primary" size="sm">View</Button>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          ) : (
+            <Alert variant="info">No related projects found.</Alert>
+          )}
+        </Tab>
+      </Tabs>
+    </Container>
   );
 };
 
-export default ProjectDetail;
+export default ProjectDetails;
+
+
