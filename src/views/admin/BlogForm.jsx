@@ -275,6 +275,17 @@ const BlogEntryForm = ({
     }
     
     console.log('Form validation passed');
+
+    let slugToSend = formData.slug.trim();
+    if (!slugToSend && formData.title) {
+      slugToSend = formData.title
+        .toLowerCase()
+        .replace(/[^\w\s]/g, '')
+        .replace(/\s+/g, '-');
+      // Update the local state for consistency 
+      setFormData(prev => ({ ...prev, slug: slugToSend }));
+    }
+
     
     try {
       // Create FormData with proper structure
@@ -283,6 +294,7 @@ const BlogEntryForm = ({
       // Add all text fields - use exact field names expected by backend
       formDataToSend.append('title', formData.title.trim());
       formDataToSend.append('slug', formData.slug || '');
+      formDataToSend.append('slug', slugToSend);
       formDataToSend.append('excerpt', formData.excerpt || '');
       formDataToSend.append('content', formData.content.trim());
       formDataToSend.append('authorId', formData.authorId.toString());
@@ -477,6 +489,7 @@ const BlogEntryForm = ({
                 className={`form-control ${errors.slug ? 'is-invalid' : ''}`}
                 value={formData.slug}
                 onChange={handleInputChange}
+                readOnly 
                 placeholder="url-slug-for-blog"
               />
               <button
