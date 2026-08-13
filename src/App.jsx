@@ -213,7 +213,7 @@ const App = () => {
 
             <Route path='projects'>
               <Route index element={<ProjectDashboard />} />
-              <Route path='/new' element={<ProjectForm />} />
+              <Route path='new' element={<ProjectForm />} />
             </Route>
             <Route path="analytics" element={<AnalyticsView />} />
             <Route path="reports" element={<ReportsView />} />
