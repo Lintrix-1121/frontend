@@ -55,6 +55,10 @@ import ProjectDashboard from './views/admin/ProjectDashboard';
 import ProjectForm from './views/admin/ProjectForm';
 import ProjectDetail from './views/customer/ProjectDetail';
 import Projects from './views/customer/Projects';
+import EmployeeList from './views/admin/EmployeeList';
+import EmployeeForm from './views/admin/EmployeeForm';
+import EmployeeDetail from './views/shared/EmployeeDetail';
+import useEmployeeStore from './stores/shared/employeeStore';
 
 // Protected route component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -143,6 +147,7 @@ const App = () => {
             <Route path='projects/:identifier' element={<ProjectDetail />} />
             {/* <Route path='projects/:category' element={<} */}
           </Route>
+
           
           {/* Customer Routes (logged in as customer) */}
           <Route 
@@ -208,12 +213,21 @@ const App = () => {
 
             <Route path='projects'>
               <Route index element={<ProjectDashboard />} />
-              <Route path='projects/new' element={<ProjectForm />} />
+              <Route path='/new' element={<ProjectForm />} />
             </Route>
             <Route path="analytics" element={<AnalyticsView />} />
             <Route path="reports" element={<ReportsView />} />
             <Route path="settings" element={<SettingsView />} />
           </Route>
+
+          <Route path='employees'> 
+          <Route index element={<EmployeeList />} />
+          <Route path='create' element={<EmployeeForm />} />
+          <Route path=':id' element={<EmployeeDetail />} />
+          <Route path=':id/edit' element={<EmployeeForm employee=
+          {useEmployeeStore.getState().currentEmployee} />} />
+          </Route>
+          
           
           {/* 404 Route */}
           <Route path="*" element={<Navigate to="/" replace />} />
