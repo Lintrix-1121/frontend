@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import employeeController from '../controllers/shared/employeeController';
+import employeeController from '../../controllers/shared/employeeController';
 
 const useEmployeeStore = create(
   persist(
