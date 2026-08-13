@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAuthStore from "../stores/shared/useAuthStore";
 import { Offcanvas } from "bootstrap";
+import { icon } from "leaflet";
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -22,6 +23,7 @@ export default function AdminLayout() {
     { name: "Projects", path: "/admin/projects", icon: "bi-cpu" },
     { name: "Blog", path: "/admin/blog", icon: "bi-file-post" },
     { name: "Careers", path: "/admin/careers", icon: "bi-person-workspace" },
+    { name: "employees", path: "/admin/employees", icon: "bi-person-badge"},
     { name: "Analytics", path: "/admin/analytics", icon: "bi-bar-chart" },
     { name: "Reports", path: "/admin/reports", icon: "bi-pie-chart" },
     { name: "Settings", path: "/admin/settings", icon: "bi-gear" },
