@@ -173,6 +173,14 @@ const App = () => {
               </ProtectedRoute>
             }
           >
+
+            <Route path="employees">
+              <Route index element={<EmployeeList />} />
+              <Route path="create" element={<EmployeeForm />} />
+              <Route path=":id" element={<EmployeeDetail />} />
+              <Route path=":id/edit" element={<EmployeeForm />} /> {/* don't pass currentEmployee directly */}
+            </Route>
+            
             <Route index element={<DashboardView />} />
             <Route path="dashboard" element={<DashboardView />} />
             <Route path="services">
@@ -220,20 +228,9 @@ const App = () => {
             <Route path="settings" element={<SettingsView />} />
           </Route>
 
-          <Route path='/employees' element={<EmployeeList />} />
-          <Route path='/employees/create' element={<EmployeeForm />} />
-          <Route path='/employees/:id' element={<EmployeeDetail />} />
-          <Route path='/employees/:id/edit' element={<EmployeeForm employee=
-          {useEmployeeStore.getState().currentEmployee}/>} />
-         
+       
 
-          {/* <Route path='employees'> 
-          <Route index element={<EmployeeList />} />
-          <Route path='create' element={<EmployeeForm />} />
-          <Route path=':id' element={<EmployeeDetail />} />
-          <Route path=':id/edit' element={<EmployeeForm employee=
-          {useEmployeeStore.getState().currentEmployee} />} />
-          </Route> */}
+          
           
           
           {/* 404 Route */}
