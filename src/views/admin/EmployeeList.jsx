@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import useEmployeeStore from '../../stores/shared/employeeStore';
-import { Spinner, Alert, Table, Button, Form, InputGroup, Pagination } from 'react-bootstrap';
+import { Spinner, Alert, Table, Button, Form, InputGroup, Pagination, Card} from 'react-bootstrap';
 
 const EmployeeList = () => {
   const {
