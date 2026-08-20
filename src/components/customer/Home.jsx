@@ -805,8 +805,8 @@ const Home = () => {
                   <section className="d-flex flex-wrap justify-content-center gap-3">
                     {[
                       { icon: 'bi-telephone-outbound', text: 'Request ICT Consultation', variant: 'danger', outline: false, link: "/call" },
-                      { icon: 'bi-envelope', text: 'Contact Software Engineers', variant: 'primary', outline: true, link: "/contact" },
-                      { icon: 'bi-chat-left-text', text: 'Talk to an IoT Expert', variant: 'dark', outline: true, link: "/chat" }
+                      { icon: 'bi-envelope', text: 'Contact Software Engineers', variant: 'primary', outline: true, link: "contactform" },
+                      { icon: 'bi-chat-left-text', text: 'Talk to an IoT Expert', variant: 'dark', outline: true, link: "contactform" }
                     ].map((btn, i) => (
                       <button 
                         key={i}

@@ -24,6 +24,7 @@ export default function AdminLayout() {
     { name: "Blog", path: "/admin/blog", icon: "bi-file-post" },
     { name: "Careers", path: "/admin/careers", icon: "bi-person-workspace" },
     { name: "Employees", path: "/admin/employees", icon: "bi-person-badge"},
+    { name: "Subscriptions", path: "/admin/subscriptions/plans", icon: "bi-person"},
     { name: "Analytics", path: "/admin/analytics", icon: "bi-bar-chart" },
     { name: "Reports", path: "/admin/reports", icon: "bi-pie-chart" },
     { name: "Settings", path: "/admin/settings", icon: "bi-gear" },

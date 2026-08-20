@@ -59,6 +59,11 @@ import EmployeeList from './views/admin/EmployeeList';
 import EmployeeForm from './views/admin/EmployeeForm';
 import EmployeeDetail from './views/shared/EmployeeDetail';
 import useEmployeeStore from './stores/shared/employeeStore';
+import ContactForm from './components/customer/ContactForm';
+import SubscriptionPlansView from './views/admin/crestune/SubscriptionPlanView';
+import SubscriptionPlanForm from './views/admin/crestune/SubscriptionPlanForm';
+import PaymentView from './views/admin/crestune/PaymentsView';
+import SubscriptionView from './views/admin/crestune/SubscriptionView';
 
 // Protected route component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -140,13 +145,13 @@ const App = () => {
             <Route index element={<CareersPage />} />
             <Route path='jobs/:slugOrId' element={<JobDetailsPage />} />
             <Route path="apply/:idOrSlug" element={<ApplicationForm />} />
-           
           </Route>
           <Route path='/projects/*'>
             <Route index element={<Projects /> } />
             <Route path='projects/:identifier' element={<ProjectDetail />} />
             {/* <Route path='projects/:category' element={<} */}
           </Route>
+          <Route path='contactform' element={<ContactForm />} />
 
           
           {/* Customer Routes (logged in as customer) */}
@@ -222,6 +227,14 @@ const App = () => {
             <Route path='projects'>
               <Route index element={<ProjectDashboard />} />
               <Route path='new' element={<ProjectForm />} />
+            </Route>
+
+            <Route path='subscriptions'>
+              <Route index element={<SubscriptionView />} />
+              <Route path='plans' element={<SubscriptionPlansView />} />
+              <Route path='plans/new' element={<SubscriptionPlanForm />} />
+              <Route path='plans/:id/edit' element={<SubscriptionPlanForm />} />
+              <Route path='payments' element={<PaymentView />} />
             </Route>
             <Route path="analytics" element={<AnalyticsView />} />
             <Route path="reports" element={<ReportsView />} />

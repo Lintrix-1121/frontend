@@ -51,6 +51,16 @@ export default function Header() {
     { name: "Home", path: "/home" },
     { name: "Shop", path: "/shop" },
     { name: "Services", path: "/services" },
+    {
+      name: "Our Products",
+      path: "/products",
+      hasDropdown: true,
+      dropdownItems: [
+        { name: "Crestune Music", path: "https://crestune.logiphix.tech" },
+        { name: "Digital School", path: "https://schmgt.logiphix.tech" },
+        { name: "Net-SACCO", path: "https://sacci.logiphix.tech" }
+      ]
+    },
     { name: "Projects", path: "/projects" },
     { name: "Blogs", path: "/blog/all" },
     { name: "Careers", path: "/careers" },
@@ -163,14 +173,14 @@ export default function Header() {
                         }}
                       >
                         {link.name}
-                        <ChevronDown
+                        {/* <ChevronDown
                           style={{
                             width: "clamp(20px,2vw,24px)",
                             height: "clamp(20px,2vw,24px)",
                             transition: 'transform 0.2s ease',
                             transform: openDropdown === link.name ? 'rotate(180deg)' : 'rotate(0)'
                           }}
-                        />
+                        /> */}
                       </button>
 
                       {openDropdown === link.name && (
@@ -507,4 +517,6 @@ export default function Header() {
     </header>
   );
 }
+
+
 

@@ -505,7 +505,7 @@ const ServicesPage = () => {
                 Request Consultation
               </Link>
               <Link
-                to="/quote"
+                to="/contactform"
                 className="btn btn-outline-light btn-lg">
                 Get Free Quote
               </Link>
