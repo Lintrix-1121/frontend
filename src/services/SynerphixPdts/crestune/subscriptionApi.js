@@ -1,154 +1,179 @@
 import axios from 'axios';
 
-const ApiService = axios.create({
-    baseURL: import.meta.env.VITE_API_SUPER,
-    timeout: 30000,
-    headers: {
-        'Content-Type': 'application/json'
-    }
+const SubscriptionApi = axios.create({
+  baseURL: import.meta.env.VITE_SUBSCRIPTION_API_SUPER,
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+// REQUEST INTERCEPTOR
+SubscriptionApi.interceptors.request.use(
+  (config) => {
+    //same key used by Logiphix authentication.
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization =
+        `Bearer ${token}`;
+    } else {
+      console.warn(
+        'No Logiphix authentication token found'
+      );
+    }
 
-//Attach authentication token
-ApiService.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
+    console.log('Crestune API Request:', {
+      method: config.method?.toUpperCase(),
+      url: `${config.baseURL}${config.url}`,
+      hasToken: !!token,
+    });
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
-// Handle authentication failures
-ApiService.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            console.error(
-                'Subscription API authentication failed:',
-                error.response.data
-            );
-        }
-        return Promise.reject(error);
+// RESPONSE INTERCEPTOR
+SubscriptionApi.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    console.error('Crestune API Error:', {
+      status: error.response?.status,
+      message: error.response?.data?.message,
+      data: error.response?.data,
+      url: error.config?.url,
+    });
+    if (error.response?.status === 401) {
+      console.error(
+        'Crestune API authentication failed'
+      );
     }
+
+    if (error.response?.status === 403) {
+      console.error(
+        'Crestune API authorization failed'
+      );
+    }
+    return Promise.reject(error);
+  }
 );
 
-const subscriptionApi = {
-    // SUBSCRIPTION PLANS
-    getPlans: async (params = {}) => {
-        const response = await ApiService.get(
-            '/subscription-plans',
-            { params }
-        );
-        return response.data;
-    },
+// SUBSCRIPTION API
+export const subscriptionApi = {
+  // PLANS
+  getPlans: async (params = {}) => {
+    const response = await SubscriptionApi.get(
+      '/subscription-plans',
+      { params }
+    );
+    return response.data;
+  },
 
-    getActivePlans: async () => {
-        const response = await ApiService.get(
-            '/subscription-plans',
-            {
-                params: {
-                    isActive: true
-                }
-            }
-        );
-        return response.data;
-    },
+  getPlan: async (id) => {
+    const response = await SubscriptionApi.get(
+      `/subscription-plans/${id}`
+    );
+    return response.data;
+  },
 
-    getPlan: async (id) => {
-        const response = await ApiService.get(
-            `/subscription-plans/${id}`
-        );
-        return response.data;
-    },
+  createPlan: async (data) => {
+    const response = await SubscriptionApi.post(
+      '/subscription-plans',
+      data
+    );
+    return response.data;
+  },
 
-    createPlan: async (data) => {
-        const response = await ApiService.post(
-            '/subscription-plans',
-            data
-        );
-        return response.data;
-    },
+  updatePlan: async (id, data) => {
+    const response = await SubscriptionApi.put(
+      `/subscription-plans/${id}`,
+      data
+    );
+    return response.data;
+  },
 
-    updatePlan: async (id, data) => {
-        const response = await ApiService.put(
-            `/subscription-plans/${id}`,
-            data
-        );
-        return response.data;
-    },
+  deletePlan: async (id) => {
+    const response = await SubscriptionApi.delete(
+      `/subscription-plans/${id}`
+    );
+    return response.data;
+  },
 
-    deletePlan: async (id) => {
-        const response = await ApiService.delete(
-            `/subscription-plans/${id}`
-        );
-        return response.data;
-    },
+  togglePlan: async (id) => {
+    const response = await SubscriptionApi.patch(
+      `/subscription-plans/${id}/toggle`
+    );
+    return response.data;
+  },
 
-    togglePlan: async (id) => {
-        const response = await ApiService.patch(
-            `/subscription-plans/${id}/toggle`
-        );
-        return response.data;
-    },
+  // SUBSCRIPTIONS
+  getSubscriptions: async (params = {}) => {
+    const response = await SubscriptionApi.get(
+      '/subscriptions',
+      { params }
+    );
+    return response.data;
+  },
 
-    // SUBSCRIPTIONS
-    getSubscriptions: async (params = {}) => {
-        const response = await ApiService.get(
-            '/subscriptions',
-            { params }
-        );
-        return response.data;
-    },
+  getSubscription: async (id) => {
+    const response = await SubscriptionApi.get(
+      `/subscriptions/${id}`
+    );
+    return response.data;
+  },
 
-    getSubscription: async (id) => {
-        const response = await ApiService.get(
-            `/subscriptions/${id}`
-        );
-        return response.data;
-    },
+  getMySubscription: async () => {
+    const response = await SubscriptionApi.get(
+      '/subscriptions/me'
+    );
+    return response.data;
+  },
 
-    getMySubscription: async () => {
-        const response = await ApiService.get(
-            '/subscriptions/me'
-        );
-        return response.data;
-    },
+  updateSubscriptionStatus: async (id, status) => {
+    const response = await SubscriptionApi.put(
+      `/subscriptions/${id}/status`,
+      { status }
+    );
+    return response.data;
+  },
 
-    cancelSubscription: async (id) => {
-        const response = await ApiService.post(
-            `/subscriptions/${id}/cancel`
-        );
-        return response.data;
-    },
+  cancelSubscription: async (id) => {
+    const response = await SubscriptionApi.post(
+      `/subscriptions/${id}/cancel`
+    );
+    return response.data;
+  },
 
-    // PAYMENTS
-    getPayments: async (params = {}) => {
-        const response = await ApiService.get(
-            '/payments',
-            { params }
-        );
-        return response.data;
-    },
+  // PAYMENTS
+  getPayments: async (params = {}) => {
+    const response = await SubscriptionApi.get(
+      '/payments',
+      { params }
+    );
+    return response.data;
+  },
 
-    getPayment: async (id) => {
-        const response = await ApiService.get(
-            `/payments/${id}`
-        );
-        return response.data;
-    },
+  getPayment: async (id) => {
+    const response = await SubscriptionApi.get(
+      `/payments/${id}`
+    );
+    return response.data;
+  },
 
-    getMyPayments: async (params = {}) => {
-        const response = await ApiService.get(
-            '/payments/me',
-            { params }
-        );
-        return response.data;
-    }
+  getMyPayments: async (params = {}) => {
+    const response = await SubscriptionApi.get(
+      '/payments/me',
+      { params }
+    );
+    return response.data;
+  },
 };
 
-export default subscriptionApi;
+export default SubscriptionApi;
+
 
 
 // import axios from 'axios';
